@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useMotionTemplate } from 'motion/react';
 import { 
   Code2, 
@@ -319,66 +319,18 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
   );
 };
 
-const VideoBackground = () => {
+const VideoBackground = memo(() => {
   const videoUrl = simuVideo;
-  const [v1Active, setV1Active] = useState(true);
-  const v1Ref = useRef<HTMLVideoElement>(null);
-  const v2Ref = useRef<HTMLVideoElement>(null);
-
-  // Função para gerenciar a transição suave entre os dois vídeos
-  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video = e.currentTarget;
-    const duration = video.duration;
-    const currentTime = video.currentTime;
-    
-    if (!duration) return;
-
-    // Inicia a transição 1.5 segundos antes do fim do vídeo atual
-    const threshold = 1.5;
-    if (currentTime > duration - threshold) {
-      if (v1Active && video === v1Ref.current) {
-        if (v2Ref.current && v2Ref.current.paused) {
-          v2Ref.current.currentTime = 0;
-          v2Ref.current.play().catch(() => {});
-          setV1Active(false);
-        }
-      } else if (!v1Active && video === v2Ref.current) {
-        if (v1Ref.current && v1Ref.current.paused) {
-          v1Ref.current.currentTime = 0;
-          v1Ref.current.play().catch(() => {});
-          setV1Active(true);
-        }
-      }
-    }
-  };
-
+  
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
-      {/* Vídeo 1 */}
       <video 
-        ref={v1Ref}
-        onTimeUpdate={handleTimeUpdate}
         autoPlay 
         muted 
+        loop
         playsInline 
-        className={cn(
-          "absolute inset-0 w-full h-full object-cover grayscale-[0.4] contrast-[1.1] transition-opacity duration-[1500ms] ease-in-out",
-          v1Active ? "opacity-30" : "opacity-0"
-        )}
-      >
-        <source src={videoUrl} type="video/mp4" />
-      </video>
-
-      {/* Vídeo 2 (Clone para Crossfade) */}
-      <video 
-        ref={v2Ref}
-        onTimeUpdate={handleTimeUpdate}
-        muted 
-        playsInline 
-        className={cn(
-          "absolute inset-0 w-full h-full object-cover grayscale-[0.4] contrast-[1.1] transition-opacity duration-[1500ms] ease-in-out",
-          !v1Active ? "opacity-30" : "opacity-0"
-        )}
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] contrast-[1.1] opacity-30 will-change-transform"
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
@@ -388,7 +340,8 @@ const VideoBackground = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface opacity-40" />
     </div>
   );
-};
+});
+VideoBackground.displayName = 'VideoBackground';
 
 const Hero = () => {
   const mouseX = useMotionValue(0);
@@ -413,8 +366,8 @@ const Hero = () => {
       <VideoBackground />
       
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-brand/10 blur-[120px] rounded-full" />
-        <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[120px] rounded-full" />
+        <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-brand/10 blur-[120px] rounded-full will-change-transform" />
+        <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[120px] rounded-full will-change-transform" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
