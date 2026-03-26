@@ -305,25 +305,69 @@ const Navbar = () => {
 
 const VideoBackground = () => {
   const videoUrl = simuVideo;
-  
+  const [v1Active, setV1Active] = useState(true);
+  const v1Ref = useRef<HTMLVideoElement>(null);
+  const v2Ref = useRef<HTMLVideoElement>(null);
+
+  // Função para gerenciar a transição suave entre os dois vídeos
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    const duration = video.duration;
+    const currentTime = video.currentTime;
+    
+    if (!duration) return;
+
+    // Inicia a transição 1.5 segundos antes do fim do vídeo atual
+    const threshold = 1.5;
+    if (currentTime > duration - threshold) {
+      if (v1Active && video === v1Ref.current) {
+        if (v2Ref.current && v2Ref.current.paused) {
+          v2Ref.current.currentTime = 0;
+          v2Ref.current.play().catch(() => {});
+          setV1Active(false);
+        }
+      } else if (!v1Active && video === v2Ref.current) {
+        if (v1Ref.current && v1Ref.current.paused) {
+          v1Ref.current.currentTime = 0;
+          v1Ref.current.play().catch(() => {});
+          setV1Active(true);
+        }
+      }
+    }
+  };
+
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 2 }}
-        className="w-full h-full"
+      {/* Vídeo 1 */}
+      <video 
+        ref={v1Ref}
+        onTimeUpdate={handleTimeUpdate}
+        autoPlay 
+        muted 
+        playsInline 
+        className={cn(
+          "absolute inset-0 w-full h-full object-cover grayscale-[0.4] contrast-[1.1] transition-opacity duration-[1500ms] ease-in-out",
+          v1Active ? "opacity-30" : "opacity-0"
+        )}
       >
-        <video 
-          autoPlay 
-          muted 
-          loop
-          playsInline 
-          className="w-full h-full object-cover opacity-30 grayscale-[0.4] contrast-[1.1]"
-        >
-          <source src={videoUrl} type="video/mp4" />
-        </video>
-      </motion.div>
+        <source src={videoUrl} type="video/mp4" />
+      </video>
+
+      {/* Vídeo 2 (Clone para Crossfade) */}
+      <video 
+        ref={v2Ref}
+        onTimeUpdate={handleTimeUpdate}
+        muted 
+        playsInline 
+        className={cn(
+          "absolute inset-0 w-full h-full object-cover grayscale-[0.4] contrast-[1.1] transition-opacity duration-[1500ms] ease-in-out",
+          !v1Active ? "opacity-30" : "opacity-0"
+        )}
+      >
+        <source src={videoUrl} type="video/mp4" />
+      </video>
+
+      {/* Overlays de Gradiente */}
       <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface opacity-60" />
       <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface opacity-40" />
     </div>
