@@ -330,7 +330,7 @@ const VideoBackground = memo(() => {
         loop
         playsInline 
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] contrast-[1.1] opacity-30 will-change-transform"
+        className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] contrast-[1.1] opacity-40 will-change-transform"
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
@@ -363,8 +363,6 @@ const Hero = () => {
 
   return (
     <section id="inicio" className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 overflow-hidden px-6">
-      <VideoBackground />
-      
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-brand/10 blur-[120px] rounded-full will-change-transform" />
         <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[120px] rounded-full will-change-transform" />
