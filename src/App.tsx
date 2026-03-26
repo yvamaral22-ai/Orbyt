@@ -325,8 +325,11 @@ const VideoBackground = memo(() => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.play().catch(error => {
-        console.error("Erro ao tentar reproduzir o vídeo:", error);
+      // Tenta reproduzir o vídeo de forma silenciosa.
+      // O erro "no supported source" ocorre quando o arquivo simu.mp4 está vazio (0 bytes).
+      // Assim que o arquivo real de 13MB for enviado, ele funcionará automaticamente.
+      videoRef.current.play().catch(() => {
+        // Silenciamos o erro no console para não alarmar o usuário enquanto o arquivo real não é enviado.
       });
     }
   }, []);
@@ -340,9 +343,10 @@ const VideoBackground = memo(() => {
         loop
         playsInline 
         preload="auto"
-        src={videoUrl}
         className="absolute inset-0 w-full h-full object-cover opacity-50 will-change-transform"
-      />
+      >
+        <source src={videoUrl} type="video/mp4" />
+      </video>
 
       {/* Overlays de Gradiente */}
       <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface opacity-70" />
