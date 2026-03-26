@@ -305,73 +305,25 @@ const Navbar = () => {
 
 const VideoBackground = () => {
   const videoUrl = simuVideo;
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isReversing, setIsReversing] = useState(false);
-  const reverseRequestRef = useRef<number>(0);
-
-  const lastTimeRef = useRef<number>(0);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    const monitorVideo = (now: number) => {
-      if (!isMounted) return;
-      
-      const video = videoRef.current;
-      if (!video || !video.duration || video.readyState < 2) {
-        reverseRequestRef.current = requestAnimationFrame(monitorVideo);
-        return;
-      }
-
-      if (isReversing) {
-        if (!lastTimeRef.current) lastTimeRef.current = now;
-        const deltaTime = (now - lastTimeRef.current) / 1000;
-        lastTimeRef.current = now;
-
-        // Rebobina na mesma velocidade (1x)
-        const nextTime = video.currentTime - deltaTime;
-        
-        if (nextTime <= 0.2) {
-          video.currentTime = 0.2;
-          setIsReversing(false);
-          lastTimeRef.current = 0;
-          video.play().catch(() => {});
-        } else {
-          video.currentTime = nextTime;
-        }
-      } else {
-        // Monitoramento de alta precisão para o final
-        // Inverte 0.5s antes do fim real para garantir que NUNCA trave
-        const threshold = 0.5;
-        if (video.currentTime >= video.duration - threshold) {
-          video.pause();
-          setIsReversing(true);
-          lastTimeRef.current = now;
-        }
-      }
-      reverseRequestRef.current = requestAnimationFrame(monitorVideo);
-    };
-
-    reverseRequestRef.current = requestAnimationFrame(monitorVideo);
-
-    return () => {
-      isMounted = false;
-      if (reverseRequestRef.current) cancelAnimationFrame(reverseRequestRef.current);
-    };
-  }, [isReversing]);
-
+  
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-      <video 
-        ref={videoRef}
-        key={videoUrl}
-        autoPlay 
-        muted 
-        playsInline 
-        className="w-full h-full object-cover opacity-30 grayscale-[0.4] contrast-[1.1]"
+    <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2 }}
+        className="w-full h-full"
       >
-        <source src={videoUrl} type="video/mp4" />
-      </video>
+        <video 
+          autoPlay 
+          muted 
+          loop
+          playsInline 
+          className="w-full h-full object-cover opacity-30 grayscale-[0.4] contrast-[1.1]"
+        >
+          <source src={videoUrl} type="video/mp4" />
+        </video>
+      </motion.div>
       <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface opacity-60" />
       <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface opacity-40" />
     </div>
