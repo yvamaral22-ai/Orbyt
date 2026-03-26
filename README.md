@@ -1,20 +1,41 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Orbyt Tecnologia
 
-# Run and deploy your AI Studio app
+Software com presença, estratégia e profundidade visual.
 
-This contains everything you need to run your app locally.
+## Sobre a Orbyt
 
-View your app in AI Studio: https://ai.studio/apps/afba128b-0367-46cb-a4b5-9ede1ac0617b
+A Orbyt é uma empresa focada em criar experiências digitais premium, combinando design sofisticado com tecnologia de ponta. Nosso foco é transformar a presença digital de nossos clientes através de interfaces intuitivas e performance excepcional.
 
-## Run Locally
+## Tecnologias Utilizadas
 
-**Prerequisites:**  Node.js
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS**
+- **Motion (Framer Motion)**
+- **Lucide React**
+- **Vite**
 
+## Como Executar o Projeto
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. Clone o repositório.
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+
+## Estrutura do Projeto
+
+- `src/App.tsx`: Componente principal com a interface e animações.
+- `src/index.css`: Estilos globais e configuração do Tailwind.
+- `src/simu.mp4`: Vídeo de fundo utilizado na hero section.
+- `metadata.json`: Metadados da aplicação para o AI Studio.
+
+---
+
+Este projeto foi desenvolvido utilizando o **Google AI Studio Build**.
+
+Desenvolvido com ❤️ pela Orbyt Tecnologia.
