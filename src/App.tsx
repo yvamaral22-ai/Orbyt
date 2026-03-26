@@ -320,24 +320,33 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
 };
 
 const VideoBackground = memo(() => {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const videoUrl = simuVideo;
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(error => {
+        console.error("Erro ao tentar reproduzir o vídeo:", error);
+      });
+    }
+  }, []);
   
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
       <video 
+        ref={videoRef}
         autoPlay 
         muted 
         loop
         playsInline 
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] contrast-[1.1] opacity-40 will-change-transform"
-      >
-        <source src={videoUrl} type="video/mp4" />
-      </video>
+        src={videoUrl}
+        className="absolute inset-0 w-full h-full object-cover opacity-50 will-change-transform"
+      />
 
       {/* Overlays de Gradiente */}
-      <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface opacity-60" />
-      <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface opacity-40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface opacity-70" />
+      <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface opacity-50" />
     </div>
   );
 });
