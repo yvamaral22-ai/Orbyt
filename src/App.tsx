@@ -326,49 +326,53 @@ const VideoBackground = memo(() => {
   const videoUrl = simuVideo;
 
   useEffect(() => {
-    if (videoRef1.current) {
-      videoRef1.current.play().catch(() => {});
+    const v1 = videoRef1.current;
+    const v2 = videoRef2.current;
+    
+    if (v1) {
+      v1.play().catch(() => {});
     }
-  }, []);
 
-  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video = e.currentTarget;
-    // Se o vídeo estiver a menos de 1.5 segundos do fim, inicia o próximo
-    if (video.duration > 0 && video.duration - video.currentTime < 1.5) {
-      if (activeVideo === 1 && videoRef2.current && videoRef2.current.paused) {
-        videoRef2.current.currentTime = 0;
-        videoRef2.current.play().then(() => {
-          setActiveVideo(2);
-          // Pequeno delay para garantir que o vídeo 1 parou
-          setTimeout(() => {
-            if (videoRef1.current) videoRef1.current.pause();
-          }, 1000);
-        }).catch(() => {});
-      } else if (activeVideo === 2 && videoRef1.current && videoRef1.current.paused) {
-        videoRef1.current.currentTime = 0;
-        videoRef1.current.play().then(() => {
-          setActiveVideo(1);
-          setTimeout(() => {
-            if (videoRef2.current) videoRef2.current.pause();
-          }, 1000);
-        }).catch(() => {});
-      }
+    // Pré-carrega o segundo vídeo
+    if (v2) {
+      v2.load();
     }
-  };
+
+    const checkTime = () => {
+      const activeRef = activeVideo === 1 ? v1 : v2;
+      const nextRef = activeVideo === 1 ? v2 : v1;
+
+      if (activeRef && nextRef && activeRef.duration > 0) {
+        const timeLeft = activeRef.duration - activeRef.currentTime;
+        
+        // Inicia a transição 1.2 segundos antes do fim
+        if (timeLeft < 1.2 && nextRef.paused) {
+          nextRef.currentTime = 0;
+          nextRef.play().then(() => {
+            setActiveVideo(activeVideo === 1 ? 2 : 1);
+          }).catch(() => {});
+        }
+      }
+      requestAnimationFrame(checkTime);
+    };
+
+    const rafId = requestAnimationFrame(checkTime);
+    return () => cancelAnimationFrame(rafId);
+  }, [activeVideo]);
 
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 transform-gpu">
         <video
           ref={videoRef1}
           muted
           playsInline
           preload="auto"
-          onTimeUpdate={activeVideo === 1 ? handleTimeUpdate : undefined}
           className={cn(
-            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 will-change-transform",
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
             activeVideo === 1 ? "opacity-100" : "opacity-0"
           )}
+          style={{ transform: 'translate3d(0,0,0)' }}
           src={videoUrl}
         />
         <video
@@ -376,18 +380,19 @@ const VideoBackground = memo(() => {
           muted
           playsInline
           preload="auto"
-          onTimeUpdate={activeVideo === 2 ? handleTimeUpdate : undefined}
           className={cn(
-            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 will-change-transform",
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
             activeVideo === 2 ? "opacity-100" : "opacity-0"
           )}
+          style={{ transform: 'translate3d(0,0,0)' }}
           src={videoUrl}
         />
       </div>
 
-      {/* Overlay sutil para garantir legibilidade do texto */}
-      <div className="absolute inset-0 bg-surface/40 backdrop-blur-[2px]" />
+      {/* Overlay otimizado: Gradientes são mais leves que backdrop-blur em telas cheias */}
+      <div className="absolute inset-0 bg-surface/30" />
       <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface" />
+      <div className="absolute inset-0 bg-gradient-to-r from-surface/40 via-transparent to-surface/40" />
     </div>
   );
 });
