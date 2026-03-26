@@ -320,28 +320,70 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
 };
 
 const VideoBackground = memo(() => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [activeVideo, setActiveVideo] = useState(1);
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
   const videoUrl = simuVideo;
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+    if (videoRef1.current) {
+      videoRef1.current.play().catch(() => {});
     }
   }, []);
-  
+
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    // Se o vídeo estiver a menos de 1.5 segundos do fim, inicia o próximo
+    if (video.duration > 0 && video.duration - video.currentTime < 1.5) {
+      if (activeVideo === 1 && videoRef2.current && videoRef2.current.paused) {
+        videoRef2.current.currentTime = 0;
+        videoRef2.current.play().then(() => {
+          setActiveVideo(2);
+          // Pequeno delay para garantir que o vídeo 1 parou
+          setTimeout(() => {
+            if (videoRef1.current) videoRef1.current.pause();
+          }, 1000);
+        }).catch(() => {});
+      } else if (activeVideo === 2 && videoRef1.current && videoRef1.current.paused) {
+        videoRef1.current.currentTime = 0;
+        videoRef1.current.play().then(() => {
+          setActiveVideo(1);
+          setTimeout(() => {
+            if (videoRef2.current) videoRef2.current.pause();
+          }, 1000);
+        }).catch(() => {});
+      }
+    }
+  };
+
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
-      <video 
-        ref={videoRef}
-        autoPlay 
-        muted 
-        loop
-        playsInline 
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover opacity-100 will-change-transform"
-      >
-        <source src={videoUrl} type="video/mp4" />
-      </video>
+      <div className="absolute inset-0">
+        <video
+          ref={videoRef1}
+          muted
+          playsInline
+          preload="auto"
+          onTimeUpdate={activeVideo === 1 ? handleTimeUpdate : undefined}
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 will-change-transform",
+            activeVideo === 1 ? "opacity-100" : "opacity-0"
+          )}
+          src={videoUrl}
+        />
+        <video
+          ref={videoRef2}
+          muted
+          playsInline
+          preload="auto"
+          onTimeUpdate={activeVideo === 2 ? handleTimeUpdate : undefined}
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 will-change-transform",
+            activeVideo === 2 ? "opacity-100" : "opacity-0"
+          )}
+          src={videoUrl}
+        />
+      </div>
 
       {/* Overlay sutil para garantir legibilidade do texto */}
       <div className="absolute inset-0 bg-surface/40 backdrop-blur-[2px]" />
