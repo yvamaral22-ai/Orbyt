@@ -325,12 +325,7 @@ const VideoBackground = memo(() => {
 
   useEffect(() => {
     if (videoRef.current) {
-      // Tenta reproduzir o vídeo de forma silenciosa.
-      // O erro "no supported source" ocorre quando o arquivo simu.mp4 está vazio (0 bytes).
-      // Assim que o arquivo real de 13MB for enviado, ele funcionará automaticamente.
-      videoRef.current.play().catch(() => {
-        // Silenciamos o erro no console para não alarmar o usuário enquanto o arquivo real não é enviado.
-      });
+      videoRef.current.play().catch(() => {});
     }
   }, []);
   
@@ -343,14 +338,14 @@ const VideoBackground = memo(() => {
         loop
         playsInline 
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover opacity-50 will-change-transform"
+        className="absolute inset-0 w-full h-full object-cover opacity-100 will-change-transform"
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
 
-      {/* Overlays de Gradiente */}
-      <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface opacity-70" />
-      <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface opacity-50" />
+      {/* Overlay sutil para garantir legibilidade do texto */}
+      <div className="absolute inset-0 bg-surface/40 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-surface via-transparent to-surface" />
     </div>
   );
 });
@@ -376,6 +371,7 @@ const Hero = () => {
 
   return (
     <section id="inicio" className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 overflow-hidden px-6">
+      <VideoBackground />
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-brand/10 blur-[120px] rounded-full will-change-transform" />
         <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[120px] rounded-full will-change-transform" />
@@ -1289,9 +1285,9 @@ export default function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
+          className="relative"
         >
           <Navbar onNavigate={navigateTo} />
-          <VideoBackground />
           
           <AnimatePresence mode="wait">
             {currentPage === 'home' ? (
