@@ -21,7 +21,8 @@ import {
   Play
 } from 'lucide-react';
 import { cn } from './lib/utils';
-import simuVideo from './simu.mp4';
+// import simuVideo from './simu.mp4';
+const simuVideo = "/simu.mp4";
 
 // --- Types ---
 
