@@ -27,6 +27,111 @@ import simuVideo from './simu.mp4';
 
 // --- Types ---
 
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  readTime: string;
+  category: string;
+  image: string;
+  author: {
+    name: string;
+    role: string;
+    avatar: string;
+  };
+}
+
+// --- Data ---
+
+const blogPosts: BlogPost[] = [
+  {
+    id: 'saas-proprio',
+    title: 'Por que sua empresa precisa de um SaaS próprio em 2026?',
+    excerpt: 'Descubra como a transição de serviços manuais para plataformas automatizadas pode escalar seu faturamento e reduzir custos operacionais drasticamente.',
+    content: `
+      <p>No cenário tecnológico de 2026, a eficiência não é mais um diferencial, é o requisito básico para a sobrevivência. Empresas que ainda dependem de processos manuais ou planilhas descentralizadas estão perdendo terreno para competidores que utilizam o modelo SaaS (Software as a Service).</p>
+      
+      <h2>1. Escalabilidade Infinita</h2>
+      <p>Diferente de um serviço prestado por humanos, um software pode atender 10 ou 10.000 clientes simultaneamente com o mesmo esforço de desenvolvimento. O custo marginal de cada novo usuário tende a zero.</p>
+      
+      <h2>2. Receita Recurrente Predictível</h2>
+      <p>O modelo de assinatura permite que sua empresa tenha uma previsibilidade de caixa muito maior. Isso facilita investimentos em inovação e expansão, pois você sabe exatamente quanto entrará no próximo mês.</p>
+      
+      <h2>3. Dados como Ativo Estratégico</h2>
+      <p>Um SaaS próprio permite coletar dados valiosos sobre o comportamento do seu cliente. Esses dados, quando bem analisados, tornam-se o maior ativo da sua empresa, permitindo melhorias contínuas no produto e estratégias de marketing muito mais assertivas.</p>
+      
+      <p>Na Orbyt, somos especialistas em transformar processos complexos em interfaces intuitivas e sistemas robustos. Se você tem uma ideia de SaaS, agora é o momento de tirar do papel.</p>
+    `,
+    date: '24 Mar, 2026',
+    readTime: '5 min',
+    category: 'Estratégia',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
+    author: {
+      name: 'Lucas Orbyt',
+      role: 'CEO & Lead Architect',
+      avatar: 'https://i.pravatar.cc/150?u=lucas'
+    }
+  },
+  {
+    id: 'design-tendencias-2026',
+    title: 'Tendências de Design para 2026: Além do Minimalismo',
+    excerpt: 'O minimalismo está evoluindo. Conheça o "Brutalismo Refinado" e como a profundidade visual está transformando a experiência do usuário.',
+    content: `
+      <p>O design digital está passando por uma revolução. Após anos de minimalismo extremo e interfaces "limpas" que acabaram se tornando genéricas, 2026 marca o retorno da personalidade e da profundidade visual.</p>
+      
+      <h2>O Surgimento do Brutalismo Refinado</h2>
+      <p>Estamos vendo uma mistura de tipografias ousadas, grids visíveis e cores vibrantes, mas com uma camada de refinamento técnico. Não é mais sobre ser "sujo", mas sobre ser "marcante".</p>
+      
+      <h2>Micro-interações com Propósito</h2>
+      <p>As animações não são mais apenas decorativas. Elas guiam o olhar do usuário e fornecem feedback tátil virtual, tornando a navegação uma experiência sensorial.</p>
+      
+      <h2>Interfaces Adaptativas</h2>
+      <p>O design agora se adapta não apenas ao tamanho da tela, mas ao contexto do usuário, utilizando IA para reorganizar elementos baseados na intenção de uso imediata.</p>
+      
+      <p>Na Orbyt, nossa filosofia de "Estética Marcante" antecipa essas tendências para garantir que seu produto não seja apenas funcional, mas inesquecível.</p>
+    `,
+    date: '20 Mar, 2026',
+    readTime: '4 min',
+    category: 'Design',
+    image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=800',
+    author: {
+      name: 'Ana Clara',
+      role: 'Head of Design',
+      avatar: 'https://i.pravatar.cc/150?u=ana'
+    }
+  },
+  {
+    id: 'performance-web-vendas',
+    title: 'Como a Performance Web impacta diretamente seu faturamento',
+    excerpt: 'Cada milissegundo conta. Estudos mostram que sites que carregam em menos de 2 segundos convertem até 3x mais que a média.',
+    content: `
+      <p>Você pode ter o melhor produto do mundo e o design mais bonito, mas se o seu site demora para carregar, você está jogando dinheiro fora. Em 2026, a paciência do usuário é medida em milissegundos.</p>
+      
+      <h2>A Regra dos 2 Segundos</h2>
+      <p>Dados do Google indicam que a probabilidade de rejeição aumenta em 32% à medida que o tempo de carregamento da página vai de 1 segundo para 3 segundos.</p>
+      
+      <h2>SEO e Core Web Vitals</h2>
+      <p>O Google prioriza sites rápidos. Uma boa performance não é apenas para o usuário, é para o algoritmo. Estar no topo das buscas depende diretamente da sua pontuação de performance.</p>
+      
+      <h2>Mobile First é Passado, Mobile Only é a Realidade</h2>
+      <p>A maioria das conversões acontece em dispositivos móveis, muitas vezes em conexões instáveis. Seu código precisa ser leve e otimizado para essas condições.</p>
+      
+      <p>Nossos sistemas na Orbyt são construídos com foco em performance extrema, utilizando as tecnologias mais modernas de renderização e cache.</p>
+    `,
+    date: '15 Mar, 2026',
+    readTime: '6 min',
+    category: 'Tecnologia',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
+    author: {
+      name: 'Gabriel Silva',
+      role: 'CTO',
+      avatar: 'https://i.pravatar.cc/150?u=gabriel'
+    }
+  }
+];
+
 // --- Helper Components ---
 
 const SpotlightCard = ({ children, className }: { children: React.ReactNode; className?: string }) => {
@@ -234,7 +339,7 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
             {[
               { name: 'Serviços', id: 'servicos' },
               { name: 'Portfólio', id: 'portfolio' },
-              { name: 'Depoimentos', id: 'depoimentos' },
+              { name: 'Insights', id: 'insights' },
               { name: 'Processo', id: 'processo' }
             ].map((item) => (
               <a 
@@ -242,11 +347,15 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 href={`#${item.id}`} 
                 onClick={(e) => {
                   e.preventDefault();
-                  onNavigate('home');
-                  setTimeout(() => {
-                    const el = document.getElementById(item.id);
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }, 100);
+                  if (item.id === 'insights') {
+                    onNavigate('insights');
+                  } else {
+                    onNavigate('home');
+                    setTimeout(() => {
+                      const el = document.getElementById(item.id);
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }
                 }}
                 className={cn(
                   "hover:text-brand transition-colors relative group",
@@ -1144,6 +1253,7 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
       <div>
         <h4 className="font-bold mb-6 text-sm uppercase tracking-widest">Legal</h4>
         <div className="flex flex-col gap-4 text-sm text-muted">
+          <button onClick={() => onNavigate('insights')} className="hover:text-brand transition-colors text-left">Insights</button>
           <button onClick={() => onNavigate('privacy')} className="hover:text-brand transition-colors text-left">Privacidade</button>
           <button onClick={() => onNavigate('terms')} className="hover:text-brand transition-colors text-left">Termos</button>
         </div>
@@ -1160,6 +1270,143 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
     </div>
   </footer>
 );
+
+const Insights = ({ onSelectPost, key }: { onSelectPost: (post: BlogPost) => void; key?: string }) => {
+  return (
+    <section className="pt-40 pb-20 px-6 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+        <div className="max-w-2xl">
+          <motion.span 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            className="text-brand font-bold uppercase tracking-[0.3em] text-xs mb-4 block"
+          >
+            Insights & Estratégia
+          </motion.span>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="text-5xl md:text-7xl font-display font-bold tracking-tighter leading-none"
+          >
+            Pensamento <span className="text-brand italic">Digital</span> para Negócios
+          </motion.h1>
+        </div>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="text-muted max-w-xs text-sm leading-relaxed"
+        >
+          Exploramos a intersecção entre tecnologia de ponta, design marcante e estratégia de crescimento.
+        </motion.p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {blogPosts.map((post, index) => (
+          <motion.div
+            key={post.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            onClick={() => onSelectPost(post)}
+            className="group cursor-pointer"
+          >
+            <SpotlightCard className="h-full flex flex-col p-0 overflow-hidden">
+              <div className="relative aspect-[16/10] overflow-hidden">
+                <img 
+                  src={post.image} 
+                  alt={post.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 bg-brand/90 text-surface text-[10px] font-bold uppercase tracking-widest rounded-full backdrop-blur-md">
+                    {post.category}
+                  </span>
+                </div>
+              </div>
+              <div className="p-8 flex flex-col flex-grow">
+                <div className="flex items-center gap-4 text-[10px] text-muted uppercase tracking-widest mb-4">
+                  <span>{post.date}</span>
+                  <span className="w-1 h-1 bg-brand rounded-full" />
+                  <span>{post.readTime} de leitura</span>
+                </div>
+                <h3 className="text-xl font-bold mb-4 group-hover:text-brand transition-colors line-clamp-2">
+                  {post.title}
+                </h3>
+                <p className="text-muted text-sm leading-relaxed mb-8 line-clamp-3">
+                  {post.excerpt}
+                </p>
+                <div className="mt-auto flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <img src={post.author.avatar} alt={post.author.name} className="w-8 h-8 rounded-full border border-white/10" />
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-white uppercase">{post.author.name}</span>
+                      <span className="text-[8px] text-muted uppercase">{post.author.role}</span>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-brand opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </div>
+              </div>
+            </SpotlightCard>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const BlogPostDetail = ({ post, onBack, key }: { post: BlogPost; onBack: () => void; key?: string }) => {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="pt-40 pb-20 px-6 max-w-4xl mx-auto"
+    >
+      <button onClick={onBack} className="flex items-center gap-2 text-brand font-bold uppercase tracking-widest text-xs mb-12 hover:gap-4 transition-all">
+        <ArrowLeft className="w-4 h-4" /> Voltar para Insights
+      </button>
+
+      <div className="mb-12">
+        <div className="flex items-center gap-4 text-xs text-brand font-bold uppercase tracking-[0.3em] mb-6">
+          <span>{post.category}</span>
+          <span className="w-1.5 h-1.5 bg-white/20 rounded-full" />
+          <span className="text-muted">{post.date}</span>
+        </div>
+        <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tighter leading-none mb-8">
+          {post.title}
+        </h1>
+        <div className="flex items-center gap-4">
+          <img src={post.author.avatar} alt={post.author.name} className="w-12 h-12 rounded-full border border-white/10" />
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-white uppercase tracking-widest">{post.author.name}</span>
+            <span className="text-xs text-muted uppercase tracking-widest">{post.author.role}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative aspect-video rounded-3xl overflow-hidden mb-16 border border-white/5">
+        <img src={post.image} alt={post.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+      </div>
+
+      <div 
+        className="prose prose-invert max-w-none text-muted leading-relaxed space-y-8 text-lg"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
+
+      <div className="mt-20 pt-20 border-t border-white/5">
+        <div className="bg-white/5 rounded-3xl p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-md text-center md:text-left">
+            <h3 className="text-2xl font-bold mb-4">Gostou deste insight?</h3>
+            <p className="text-muted text-sm">Transformamos essas estratégias em realidade para o seu negócio. Vamos conversar sobre seu próximo projeto?</p>
+          </div>
+          <MagneticButton className="px-8 py-4 bg-brand text-surface font-bold uppercase tracking-widest text-xs rounded-full hover:scale-105 transition-transform">
+            Iniciar Projeto
+          </MagneticButton>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const PrivacyPolicy = ({ onBack, key }: { onBack: () => void; key?: string }) => (
   <motion.div 
@@ -1255,7 +1502,8 @@ const TermsOfService = ({ onBack, key }: { onBack: () => void; key?: string }) =
 
 export default function App() {
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms' | 'insights' | 'post'>('home');
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const mouseX = useMotionValue(0);
@@ -1283,6 +1531,13 @@ export default function App() {
 
   const navigateTo = (page: any) => {
     setCurrentPage(page);
+    if (page !== 'post') setSelectedPost(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectPost = (post: BlogPost) => {
+    setSelectedPost(post);
+    setCurrentPage('post');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1356,6 +1611,10 @@ export default function App() {
                 <Process />
                 <Contact />
               </motion.div>
+            ) : currentPage === 'insights' ? (
+              <Insights key="insights" onSelectPost={handleSelectPost} />
+            ) : currentPage === 'post' && selectedPost ? (
+              <BlogPostDetail key="post" post={selectedPost} onBack={() => navigateTo('insights')} />
             ) : currentPage === 'privacy' ? (
               <PrivacyPolicy key="privacy" onBack={() => navigateTo('home')} />
             ) : (
