@@ -18,7 +18,8 @@ import {
   BarChart3,
   MessageSquare,
   Star,
-  Play
+  Play,
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from './lib/utils';
 // import simuVideo from './simu.mp4';
@@ -184,7 +185,7 @@ const Counter = ({ target, label }: { target: number; label: string }) => {
 
 // --- Main Components ---
 
-const Navbar = () => {
+const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
 
@@ -219,12 +220,12 @@ const Navbar = () => {
         )}
       >
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => onNavigate('home')}>
             <div className="w-8 h-8 bg-gradient-to-br from-brand-soft to-brand rounded flex items-center justify-center rotate-3 group-hover:rotate-12 transition-transform shadow-lg shadow-brand/20">
               <Terminal className="w-5 h-5 text-surface" />
             </div>
             <div className="flex flex-col">
-              <span className="font-display font-bold text-lg leading-none tracking-tighter">ORBYT <span className="text-brand">TECNOLOGIA</span></span>
+              <span className="font-display font-bold text-lg leading-none tracking-tighter uppercase">ORBYT <span className="text-brand">TECNOLOGIA</span></span>
               <span className="text-[8px] uppercase tracking-widest text-muted">Software, Produtos e Presença Digital</span>
             </div>
           </div>
@@ -239,6 +240,14 @@ const Navbar = () => {
               <a 
                 key={item.id} 
                 href={`#${item.id}`} 
+                onClick={(e) => {
+                  e.preventDefault();
+                  onNavigate('home');
+                  setTimeout(() => {
+                    const el = document.getElementById(item.id);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
                 className={cn(
                   "hover:text-brand transition-colors relative group",
                   activeSection === item.id ? "text-brand" : ""
@@ -254,7 +263,14 @@ const Navbar = () => {
               </a>
             ))}
             <MagneticButton className="bg-brand text-surface px-5 py-2 rounded-full hover:scale-105 transition-all duration-300 font-bold text-[10px]">
-              <a href="#contato">VAMOS CRIAR</a>
+              <a href="#contato" onClick={(e) => {
+                e.preventDefault();
+                onNavigate('home');
+                setTimeout(() => {
+                  const el = document.getElementById('contato');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}>VAMOS CRIAR</a>
             </MagneticButton>
           </div>
 
@@ -410,7 +426,7 @@ const Hero = () => {
           <span className="inline-block text-brand-soft text-[10px] uppercase tracking-[0.3em] font-bold mb-6">
             Software com presença, estratégia e profundidade visual
           </span>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[0.95] tracking-tighter mb-8">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[0.95] tracking-tighter mb-8 uppercase">
             A Orbyt cria sites, sistemas e SaaS com <span className="text-brand italic">estética marcante</span> para transformar atenção em autoridade.
           </h1>
           <p className="text-lg text-muted max-w-xl mb-10 leading-relaxed">
@@ -1094,7 +1110,7 @@ const Contact = () => {
   );
 };
 
-const Footer = () => (
+const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
   <footer className="py-20 px-6 border-t border-white/5">
     <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 items-start">
       <div className="md:col-span-2">
@@ -1102,7 +1118,7 @@ const Footer = () => (
           <div className="w-8 h-8 bg-brand rounded flex items-center justify-center rotate-3">
             <Terminal className="w-5 h-5 text-surface" />
           </div>
-          <span className="font-display font-bold text-2xl tracking-tighter">ORBYT <span className="text-brand">TECNOLOGIA</span></span>
+          <span className="font-display font-bold text-2xl tracking-tighter uppercase">ORBYT <span className="text-brand">TECNOLOGIA</span></span>
         </div>
         <p className="text-muted text-sm max-w-xs leading-relaxed">
           Desenvolvimento de software focado em design estratégico e performance extrema. Transformando ideias em autoridade digital.
@@ -1121,8 +1137,8 @@ const Footer = () => (
       <div>
         <h4 className="font-bold mb-6 text-sm uppercase tracking-widest">Legal</h4>
         <div className="flex flex-col gap-4 text-sm text-muted">
-          <a href="#" className="hover:text-brand transition-colors">Privacidade</a>
-          <a href="#" className="hover:text-brand transition-colors">Termos</a>
+          <button onClick={() => onNavigate('privacy')} className="hover:text-brand transition-colors text-left">Privacidade</button>
+          <button onClick={() => onNavigate('terms')} className="hover:text-brand transition-colors text-left">Termos</button>
         </div>
       </div>
     </div>
@@ -1138,10 +1154,101 @@ const Footer = () => (
   </footer>
 );
 
+const PrivacyPolicy = ({ onBack, key }: { onBack: () => void; key?: string }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="pt-40 pb-20 px-6 max-w-4xl mx-auto"
+  >
+    <button onClick={onBack} className="flex items-center gap-2 text-brand font-bold uppercase tracking-widest text-xs mb-12 hover:gap-4 transition-all">
+      <ArrowLeft className="w-4 h-4" /> Voltar para o início
+    </button>
+    <h1 className="text-5xl md:text-7xl font-display font-bold mb-12 tracking-tighter">Política de <span className="text-brand italic">Privacidade</span></h1>
+    <div className="prose prose-invert max-w-none text-muted leading-relaxed space-y-8">
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">1. Introdução</h2>
+        <p>A Orbyt Tecnologia valoriza a sua privacidade. Esta política descreve como coletamos, usamos e protegemos seus dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">2. Coleta de Dados</h2>
+        <p>Coletamos informações que você nos fornece voluntariamente através de nossos formulários de contato, como nome, e-mail e telefone. Também coletamos dados técnicos de navegação (cookies) para melhorar sua experiência em nosso site.</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">3. Finalidade do Tratamento</h2>
+        <p>Seus dados são utilizados exclusivamente para:</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>Responder a solicitações de orçamento e contato;</li>
+          <li>Enviar comunicações sobre nossos serviços (quando autorizado);</li>
+          <li>Melhorar a performance e usabilidade do nosso site.</li>
+        </ul>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">4. Segurança</h2>
+        <p>Implementamos medidas técnicas e organizacionais para proteger seus dados contra acessos não autorizados, perda ou destruição. Seus dados são armazenados em servidores seguros com criptografia.</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">5. Seus Direitos</h2>
+        <p>Como titular dos dados, você tem o direito de solicitar a confirmação da existência de tratamento, acesso aos dados, correção de dados incompletos ou inexatos, e a exclusão de seus dados de nossa base de marketing a qualquer momento.</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">6. Contato</h2>
+        <p>Para exercer seus direitos ou tirar dúvidas sobre nossa política, entre em contato através do e-mail: <span className="text-brand">contato@orbyttecnologia.com.br</span></p>
+      </section>
+    </div>
+  </motion.div>
+);
+
+const TermsOfService = ({ onBack, key }: { onBack: () => void; key?: string }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="pt-40 pb-20 px-6 max-w-4xl mx-auto"
+  >
+    <button onClick={onBack} className="flex items-center gap-2 text-brand font-bold uppercase tracking-widest text-xs mb-12 hover:gap-4 transition-all">
+      <ArrowLeft className="w-4 h-4" /> Voltar para o início
+    </button>
+    <h1 className="text-5xl md:text-7xl font-display font-bold mb-12 tracking-tighter">Termos de <span className="text-brand italic">Uso</span></h1>
+    <div className="prose prose-invert max-w-none text-muted leading-relaxed space-y-8">
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">1. Aceitação dos Termos</h2>
+        <p>Ao acessar o site da Orbyt Tecnologia, você concorda em cumprir estes termos de serviço, todas as leis e regulamentos aplicáveis e concorda que é responsável pelo cumprimento de todas as leis locais aplicáveis.</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">2. Licença de Uso</h2>
+        <p>É concedida permissão para baixar temporariamente uma cópia dos materiais (informações ou software) no site Orbyt Tecnologia, apenas para visualização transitória pessoal e não comercial.</p>
+        <p>Esta licença não permite:</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>Modificar ou copiar os materiais;</li>
+          <li>Usar os materiais para qualquer finalidade comercial ou para exibição pública;</li>
+          <li>Tentar descompilar ou fazer engenharia reversa de qualquer software contido no site;</li>
+          <li>Remover quaisquer direitos autorais ou outras notações de propriedade dos materiais.</li>
+        </ul>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">3. Isenção de Responsabilidade</h2>
+        <p>Os materiais no site da Orbyt Tecnologia são fornecidos 'como estão'. A Orbyt Tecnologia não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">4. Limitações</h2>
+        <p>Em nenhum caso a Orbyt Tecnologia ou seus fornecedores serão responsáveis por quaisquer danos decorrentes do uso ou da incapacidade de usar os materiais em nosso site, mesmo que tenhamos sido notificados oralmente ou por escrito da possibilidade de tais danos.</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">5. Precisão dos Materiais</h2>
+        <p>Os materiais exibidos no site da Orbyt Tecnologia podem incluir erros técnicos, tipográficos ou fotográficos. Não garantimos que qualquer material em nosso site seja preciso, completo ou atual. Podemos fazer alterações nos materiais contidos em nosso site a qualquer momento, sem aviso prévio.</p>
+      </section>
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-4">6. Links</h2>
+        <p>A Orbyt Tecnologia não analisou todos os sites vinculados ao seu site e não é responsável pelo conteúdo de nenhum site vinculado. A inclusão de qualquer link não implica endosso por nossa parte. O uso de qualquer site vinculado é por conta e risco do usuário.</p>
+      </section>
+    </div>
+  </motion.div>
+);
+
 // --- Main App ---
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms'>('home');
   const cursorRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const mouseX = useMotionValue(0);
@@ -1166,6 +1273,11 @@ export default function App() {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  const navigateTo = (page: any) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="relative selection:bg-brand selection:text-white">
@@ -1214,18 +1326,37 @@ export default function App() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <Navbar />
-          <Hero />
-          <TechStack />
-          <Marquee />
-          <Services />
-          <Portfolio />
-          <Testimonials />
-          <FAQ />
-          <Featured />
-          <Process />
-          <Contact />
-          <Footer />
+          <Navbar onNavigate={navigateTo} />
+          <VideoBackground />
+          
+          <AnimatePresence mode="wait">
+            {currentPage === 'home' ? (
+              <motion.div
+                key="home"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Hero />
+                <TechStack />
+                <Marquee />
+                <Services />
+                <Portfolio />
+                <Testimonials />
+                <FAQ />
+                <Featured />
+                <Process />
+                <Contact />
+              </motion.div>
+            ) : currentPage === 'privacy' ? (
+              <PrivacyPolicy key="privacy" onBack={() => navigateTo('home')} />
+            ) : (
+              <TermsOfService key="terms" onBack={() => navigateTo('home')} />
+            )}
+          </AnimatePresence>
+
+          <Footer onNavigate={navigateTo} />
 
           <motion.div 
             initial={{ opacity: 0, scale: 0 }}

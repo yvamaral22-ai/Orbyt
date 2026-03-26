@@ -6,4 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+src/simu.mp4
 public/simu.mp4
