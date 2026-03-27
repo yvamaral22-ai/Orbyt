@@ -1572,7 +1572,7 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
         ? 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/health'
         : '/api/health';
       try {
-        const res = await fetch(apiUrl);
+        const res = await fetch(apiUrl, { mode: 'cors', credentials: 'omit' });
         const data = await res.json();
         console.log('[API] Health Check:', data);
       } catch (e) {
@@ -1596,7 +1596,9 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formState)
+        body: JSON.stringify(formState),
+        mode: 'cors',
+        credentials: 'omit'
       });
       
       const contentType = response.headers.get('content-type');

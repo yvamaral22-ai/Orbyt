@@ -17,11 +17,32 @@ async function startServer() {
 
   console.log(`[SERVER] Iniciando servidor em modo: ${process.env.NODE_ENV || 'development'}`);
 
-  app.use(cors({
-    origin: ['https://kytronatecnologia.com', 'http://localhost:3000', 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app'],
-    methods: ['GET', 'POST', 'OPTIONS'],
-    credentials: true
-  }));
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    // Lista de origens permitidas
+    const allowedOrigins = [
+      'https://kytronatecnologia.com',
+      'http://localhost:3000',
+      'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app',
+      'https://ais-dev-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app'
+    ];
+
+    if (origin && (allowedOrigins.includes(origin) || origin.endsWith('.run.app'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else if (!origin) {
+      // Para requisições sem origin (como ferramentas de teste), podemos opcionalmente permitir
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    next();
+  });
   app.use(express.json());
 
   // Middleware de Log Detalhado
