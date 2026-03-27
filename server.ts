@@ -9,11 +9,7 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
-  app.use(cors({
-    origin: ['https://kytronatecnologia.com', 'http://kytronatecnologia.com', 'https://ais-dev-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app', 'http://localhost:3000'],
-    methods: ['GET', 'POST'],
-    credentials: true
-  }));
+  app.use(cors()); // Simplificado para permitir conexões de qualquer origem durante o teste
 
   // API Route for Leads (Definido ANTES do static para evitar 404)
   app.post('/api/leads', async (req, res) => {

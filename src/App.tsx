@@ -1576,8 +1576,8 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
     
     try {
       // Chamada para o SEU PRÓPRIO SERVIDOR (AI Studio)
-      // Usamos a URL absoluta para que funcione mesmo quando o site estiver na Hostinger
-      const API_URL = 'https://ais-dev-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/leads';
+      // Usamos a URL SHARED (Pública) para evitar redirecionamentos de segurança
+      const API_URL = 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/leads';
       
       const response = await fetch(API_URL, {
         method: 'POST',
