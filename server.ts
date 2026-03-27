@@ -9,10 +9,11 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
-  app.use(cors()); // Simplificado para permitir conexões de qualquer origem durante o teste
+  app.use(cors());
+  app.options('*', cors()); // Trata explicitamente o preflight de todas as rotas
 
-  // API Route for Leads (Definido ANTES do static para evitar 404)
-  app.post('/api/leads', async (req, res) => {
+  // API Route for Leads (Aceita com ou sem barra no final para evitar redirecionamentos)
+  app.post(['/api/leads', '/api/leads/'], async (req, res) => {
     console.log('Recebendo lead no servidor...');
     const { nome, email, whatsapp, interesse, empresa } = req.body;
 
