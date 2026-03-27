@@ -11,8 +11,9 @@ async function startServer() {
   app.use(express.json());
   app.use(cors());
 
-  // API Route for Leads
+  // API Route for Leads (Definido ANTES do static para evitar 404)
   app.post('/api/leads', async (req, res) => {
+    console.log('Recebendo lead no servidor...');
     const { nome, email, whatsapp, interesse, empresa } = req.body;
 
     // Configuração do Transportador SMTP (Hostinger - Usando porta 465 SSL/TLS conforme solicitado)
@@ -32,25 +33,49 @@ async function startServer() {
     });
 
     const mailOptions = {
-      from: `"Kytrona Website" <${process.env.SMTP_USER || 'contato@kytronatecnologia.com'}>`,
+      from: `"Kytrona Tecnologia - Leads" <${process.env.SMTP_USER || 'contato@kytronatecnologia.com'}>`,
       to: 'contato@kytronatecnologia.com',
-      subject: `Novo Lead: ${nome} - ${interesse}`,
-      text: `
-        Novo lead recebido pelo site:
-        
-        Nome: ${nome}
-        E-mail: ${email}
-        WhatsApp: ${whatsapp}
-        Interesse: ${interesse}
-        Empresa: ${empresa || 'Não informada'}
-      `,
+      subject: `🚀 Novo Lead: ${nome} - ${interesse}`,
       html: `
-        <h3>Novo lead recebido pelo site</h3>
-        <p><strong>Nome:</strong> ${nome}</p>
-        <p><strong>E-mail:</strong> ${email}</p>
-        <p><strong>WhatsApp:</strong> ${whatsapp}</p>
-        <p><strong>Interesse:</strong> ${interesse}</p>
-        <p><strong>Empresa:</strong> ${empresa || 'Não informada'}</p>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+          <div style="background-color: #000; padding: 20px; text-align: center;">
+            <h1 style="color: #fff; margin: 0; font-size: 24px; letter-spacing: 2px;">KYTRONA TECNOLOGIA</h1>
+          </div>
+          <div style="padding: 30px; background-color: #fff;">
+            <h2 style="color: #000; border-bottom: 2px solid #f27d26; padding-bottom: 10px; margin-top: 0;">Novo Contato Recebido</h2>
+            <p style="font-size: 16px; line-height: 1.6;">Você tem um novo potencial cliente interessado em seus serviços. Confira os detalhes abaixo:</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; width: 30%;">Nome:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">${nome}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">E-mail:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;"><a href="mailto:${email}" style="color: #f27d26; text-decoration: none;">${email}</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">WhatsApp:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;"><a href="https://wa.me/${whatsapp.replace(/\D/g, '')}" style="color: #25d366; text-decoration: none; font-weight: bold;">${whatsapp} (Abrir Conversa)</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Empresa:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">${empresa || 'Não informada'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Interesse:</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;"><span style="background-color: #fdf2e9; color: #f27d26; padding: 4px 10px; border-radius: 4px; font-weight: bold;">${interesse}</span></td>
+              </tr>
+            </table>
+            
+            <div style="margin-top: 30px; padding: 20px; background-color: #f9f9f9; border-radius: 8px; text-align: center;">
+              <p style="margin: 0; font-size: 14px; color: #666;">Este lead foi gerado automaticamente pelo seu site oficial.</p>
+            </div>
+          </div>
+          <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px; color: #999;">
+            &copy; 2026 Kytrona Tecnologia. Todos os direitos reservados.
+          </div>
+        </div>
       `,
     };
 
