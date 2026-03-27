@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -16,7 +17,18 @@ async function startServer() {
 
   console.log(`[SERVER] Iniciando servidor em modo: ${process.env.NODE_ENV || 'development'}`);
 
+  app.use(cors({
+    origin: ['https://kytronatecnologia.com', 'http://localhost:3000', 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: true
+  }));
   app.use(express.json());
+
+  // Middleware de Log Detalhado
+  app.use((req, res, next) => {
+    console.log(`[DEBUG] ${new Date().toISOString()} - ${req.method} ${req.path} - Host: ${req.headers.host}`);
+    next();
+  });
 
   // Middleware para capturar informações de visitantes
   app.use((req, res, next) => {

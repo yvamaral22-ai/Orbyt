@@ -1566,17 +1566,46 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    const checkHealth = async () => {
+      const apiUrl = window.location.hostname === 'kytronatecnologia.com'
+        ? 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/health'
+        : '/api/health';
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        console.log('[API] Health Check:', data);
+      } catch (e) {
+        console.error('[API] Health Check Failed:', e);
+      }
+    };
+    checkHealth();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('/api/leads', {
+      // Se estivermos no domínio customizado que está apontando para outro lugar (ex: Vercel),
+      // usamos a URL absoluta do Cloud Run para garantir que a API seja alcançada.
+      const apiUrl = window.location.hostname === 'kytronatecnologia.com'
+        ? 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/leads'
+        : '/api/leads';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formState)
       });
       
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Resposta não-JSON recebida:', text);
+        throw new Error(`O servidor retornou uma resposta inválida (HTML). Isso geralmente acontece quando a URL da API está incorreta ou o servidor não está rodando. Conteúdo: ${text.substring(0, 100)}...`);
+      }
+
       const result = await response.json();
       
       if (result.success) {
