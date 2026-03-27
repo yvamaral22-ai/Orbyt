@@ -14,6 +14,8 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  console.log(`[SERVER] Iniciando servidor em modo: ${process.env.NODE_ENV || 'development'}`);
+
   app.use(express.json());
 
   // Middleware para capturar informações de visitantes
@@ -31,7 +33,11 @@ async function startServer() {
   });
 
   // API routes FIRST
-  app.post("/api/leads", async (req, res) => {
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", env: process.env.NODE_ENV });
+  });
+
+  app.post(["/api/leads", "/api/leads/"], async (req, res) => {
     const { nome, email, whatsapp, interesse, empresa } = req.body;
 
     // Configuração do transportador de e-mail (SMTP)
@@ -104,6 +110,11 @@ async function startServer() {
     }
   });
 
+  // Catch-all for API routes that don't match
+  app.all("/api/*", (req, res) => {
+    res.status(404).json({ success: false, message: `API route ${req.method} ${req.path} not found.` });
+  });
+
   // Serve static files from public folder in development
   if (process.env.NODE_ENV !== "production") {
     app.use(express.static(path.join(__dirname, "public")));
@@ -118,9 +129,11 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+    console.log(`Servindo arquivos estáticos de: ${distPath}`);
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      const indexPath = path.join(distPath, 'index.html');
+      res.sendFile(indexPath);
     });
   }
 

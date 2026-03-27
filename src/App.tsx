@@ -1234,7 +1234,7 @@ const Contact = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
     <section id="contato" className="py-32 px-6">
       <div className="max-w-7xl mx-auto rounded-[3rem] bg-brand p-12 md:p-24 relative overflow-hidden text-center">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
+          <div className="absolute inset-0 bg-white/[0.02] mix-blend-overlay" />
         </div>
         
         <motion.div
