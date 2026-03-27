@@ -1575,14 +1575,42 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
     setIsSubmitting(true);
     
     try {
-      // Chamada para o SEU PRÓPRIO SERVIDOR (AI Studio)
-      // Adicionada a barra "/" no final para evitar o erro de redirecionamento (CORS Preflight)
-      const API_URL = 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/leads/';
-      
-      const response = await fetch(API_URL, {
+      // Configurando o Web3Forms com nomes amigáveis para o e-mail chegar profissional
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formState)
+        body: JSON.stringify({
+          access_key: "79040713-3330-4965-8097-488669578021",
+          from_name: "Kytrona Tecnologia - Site Oficial",
+          subject: `🚀 NOVO LEAD: ${formState.nome.toUpperCase()}`,
+          
+          // Nomes amigáveis que aparecerão na tabela do e-mail
+          "Nome do Cliente": formState.nome,
+          "E-mail de Contato": formState.email,
+          "WhatsApp/Telefone": formState.whatsapp,
+          "Serviço de Interesse": formState.interesse,
+          "Empresa/Projeto": formState.empresa || "Não informado",
+          
+          // Resumo formatado para o corpo do e-mail
+          message: `
+            Novo lead capturado via site Kytrona Tecnologia.
+            
+            DETALHES DO CONTATO:
+            -------------------
+            Nome: ${formState.nome}
+            E-mail: ${formState.email}
+            WhatsApp: ${formState.whatsapp}
+            Interesse: ${formState.interesse}
+            Empresa: ${formState.empresa || 'Não informada'}
+            
+            AÇÃO RÁPIDA:
+            -------------------
+            Abrir conversa no WhatsApp: https://wa.me/${formState.whatsapp.replace(/\D/g, '')}
+          `,
+          
+          // Permite que você responda o e-mail diretamente para o cliente
+          replyto: formState.email,
+        })
       });
       
       const result = await response.json();
@@ -1591,12 +1619,11 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
         alert('Obrigado! Nossos especialistas entrarão em contato em breve.');
         onClose();
       } else {
-        throw new Error(result.error || 'Erro ao enviar formulário');
+        throw new Error(result.message || 'Erro ao enviar formulário');
       }
     } catch (error: any) {
       console.error('Erro ao enviar lead:', error);
-      const errorMsg = error.message || 'Erro desconhecido';
-      alert(`Erro no Servidor: ${errorMsg}\n\nPor favor, verifique as Environment Variables no AI Studio.`);
+      alert('Desculpe, houve um erro ao enviar seus dados. Por favor, tente novamente ou entre em contato via WhatsApp.');
     } finally {
       setIsSubmitting(false);
     }
