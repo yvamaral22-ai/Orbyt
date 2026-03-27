@@ -62,14 +62,14 @@ const blogPosts: BlogPost[] = [
       <h2>3. Dados como Ativo Estratégico</h2>
       <p>Um SaaS próprio permite coletar dados valiosos sobre o comportamento do seu cliente. Esses dados, quando bem analisados, tornam-se o maior ativo da sua empresa, permitindo melhorias contínuas no produto e estratégias de marketing muito mais assertivas.</p>
       
-      <p>Na Orbyt, somos especialistas em transformar processos complexos em interfaces intuitivas e sistemas robustos. Se você tem uma ideia de SaaS, agora é o momento de tirar do papel.</p>
+      <p>Na Kytrona, somos especialistas em transformar processos complexos em interfaces intuitivas e sistemas robustos. Se você tem uma ideia de SaaS, agora é o momento de tirar do papel.</p>
     `,
     date: '24 Mar, 2026',
     readTime: '5 min',
     category: 'Estratégia',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
     author: {
-      name: 'Lucas Orbyt',
+      name: 'Lucas Kytrona',
       role: 'CEO & Lead Architect',
       avatar: 'https://i.pravatar.cc/150?u=lucas'
     }
@@ -90,7 +90,7 @@ const blogPosts: BlogPost[] = [
       <h2>Interfaces Adaptativas</h2>
       <p>O design agora se adapta não apenas ao tamanho da tela, mas ao contexto do usuário, utilizando IA para reorganizar elementos baseados na intenção de uso imediata.</p>
       
-      <p>Na Orbyt, nossa filosofia de "Estética Marcante" antecipa essas tendências para garantir que seu produto não seja apenas funcional, mas inesquecível.</p>
+      <p>Na Kytrona, nossa filosofia de "Estética Marcante" antecipa essas tendências para garantir que seu produto não seja apenas funcional, mas inesquecível.</p>
     `,
     date: '20 Mar, 2026',
     readTime: '4 min',
@@ -118,7 +118,7 @@ const blogPosts: BlogPost[] = [
       <h2>Mobile First é Passado, Mobile Only é a Realidade</h2>
       <p>A maioria das conversões acontece em dispositivos móveis, muitas vezes em conexões instáveis. Seu código precisa ser leve e otimizado para essas condições.</p>
       
-      <p>Nossos sistemas na Orbyt são construídos com foco em performance extrema, utilizando as tecnologias mais modernas de renderização e cache.</p>
+      <p>Nossos sistemas na Kytrona são construídos com foco em performance extrema, utilizando as tecnologias mais modernas de renderização e cache.</p>
     `,
     date: '15 Mar, 2026',
     readTime: '6 min',
@@ -330,7 +330,7 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
               <Terminal className="w-5 h-5 text-surface" />
             </div>
             <div className="flex flex-col">
-              <span className="font-display font-bold text-lg leading-none tracking-tighter uppercase">ORBYT <span className="text-brand">TECNOLOGIA</span></span>
+              <span className="font-display font-bold text-lg leading-none tracking-tighter uppercase">Kytrona <span className="text-brand">TECNOLOGIA</span></span>
               <span className="text-[8px] uppercase tracking-widest text-muted">Software, Produtos e Presença Digital</span>
             </div>
           </div>
@@ -543,7 +543,7 @@ const Hero = () => {
             Software com presença, estratégia e profundidade visual
           </span>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[0.95] tracking-tighter mb-8 uppercase">
-            A Orbyt cria sites, sistemas e SaaS com <span className="text-brand italic">estética marcante</span> para transformar atenção em autoridade.
+            A Kytrona cria sites, sistemas e SaaS com <span className="text-brand italic">estética marcante</span> para transformar atenção em autoridade.
           </h1>
           <p className="text-lg text-muted max-w-xl mb-10 leading-relaxed">
             Experiências digitais para marcas e negócios que querem sair do visual genérico: interfaces modernas, interatividade inteligente, performance e valor percebido desde o primeiro scroll.
@@ -586,7 +586,7 @@ const Hero = () => {
               <div className="flex justify-between items-end">
                 <div>
                   <h3 className="text-xl font-bold mb-2">Linguagem visual própria</h3>
-                  <p className="text-xs text-muted max-w-[250px]">Direção de arte, UX, frontend refinado e arquitetura sólida pela Orbyt.</p>
+                  <p className="text-xs text-muted max-w-[250px]">Direção de arte, UX, frontend refinado e arquitetura sólida pela Kytrona.</p>
                 </div>
                 <div className="flex gap-2">
                   {['Web', 'SaaS', 'Apps'].map(tag => (
@@ -1072,7 +1072,7 @@ const Portfolio = () => {
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "A Orbyt conseguiu traduzir o que a gente queria passar sem cair no visual comum de tecnologia. O projeto ficou elegante, rápido e com muita presença.",
+      quote: "A Kytrona conseguiu traduzir o que a gente queria passar sem cair no visual comum de tecnologia. O projeto ficou elegante, rápido e com muita presença.",
       author: "Marina Costa",
       role: "Direção de Marca"
     },
@@ -1170,7 +1170,7 @@ const Featured = () => {
 
 const Contact = () => {
   const [copied, setCopied] = useState(false);
-  const email = "contato@orbyttecnologia.com.br";
+  const email = "contato@Kytronatecnologia.com.br";
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -1234,7 +1234,7 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
           <div className="w-8 h-8 bg-brand rounded flex items-center justify-center rotate-3">
             <Terminal className="w-5 h-5 text-surface" />
           </div>
-          <span className="font-display font-bold text-2xl tracking-tighter uppercase">ORBYT <span className="text-brand">TECNOLOGIA</span></span>
+          <span className="font-display font-bold text-2xl tracking-tighter uppercase">Kytrona <span className="text-brand">TECNOLOGIA</span></span>
         </div>
         <p className="text-muted text-sm max-w-xs leading-relaxed">
           Desenvolvimento de software focado em design estratégico e performance extrema. Transformando ideias em autoridade digital.
@@ -1261,7 +1261,7 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
     </div>
     <div className="max-w-7xl mx-auto mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
       <p className="text-muted text-[10px] uppercase tracking-widest">
-        © {new Date().getFullYear()} Orbyt Tecnologia. Todos os direitos reservados.
+        © {new Date().getFullYear()} Kytrona Tecnologia. Todos os direitos reservados.
       </p>
       <div className="flex gap-4">
         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -1421,7 +1421,7 @@ const PrivacyPolicy = ({ onBack, key }: { onBack: () => void; key?: string }) =>
     <div className="prose prose-invert max-w-none text-muted leading-relaxed space-y-8">
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">1. Introdução</h2>
-        <p>A Orbyt Tecnologia valoriza a sua privacidade. Esta política descreve como coletamos, usamos e protegemos seus dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).</p>
+        <p>A Kytrona Tecnologia valoriza a sua privacidade. Esta política descreve como coletamos, usamos e protegemos seus dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).</p>
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">2. Coleta de Dados</h2>
@@ -1465,11 +1465,11 @@ const TermsOfService = ({ onBack, key }: { onBack: () => void; key?: string }) =
     <div className="prose prose-invert max-w-none text-muted leading-relaxed space-y-8">
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">1. Aceitação dos Termos</h2>
-        <p>Ao acessar o site da Orbyt Tecnologia, você concorda em cumprir estes termos de serviço, todas as leis e regulamentos aplicáveis e concorda que é responsável pelo cumprimento de todas as leis locais aplicáveis.</p>
+        <p>Ao acessar o site da Kytrona Tecnologia, você concorda em cumprir estes termos de serviço, todas as leis e regulamentos aplicáveis e concorda que é responsável pelo cumprimento de todas as leis locais aplicáveis.</p>
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">2. Licença de Uso</h2>
-        <p>É concedida permissão para baixar temporariamente uma cópia dos materiais (informações ou software) no site Orbyt Tecnologia, apenas para visualização transitória pessoal e não comercial.</p>
+        <p>É concedida permissão para baixar temporariamente uma cópia dos materiais (informações ou software) no site Kytrona Tecnologia, apenas para visualização transitória pessoal e não comercial.</p>
         <p>Esta licença não permite:</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>Modificar ou copiar os materiais;</li>
@@ -1480,19 +1480,19 @@ const TermsOfService = ({ onBack, key }: { onBack: () => void; key?: string }) =
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">3. Isenção de Responsabilidade</h2>
-        <p>Os materiais no site da Orbyt Tecnologia são fornecidos 'como estão'. A Orbyt Tecnologia não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.</p>
+        <p>Os materiais no site da Kytrona Tecnologia são fornecidos 'como estão'. A Kytrona Tecnologia não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.</p>
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">4. Limitações</h2>
-        <p>Em nenhum caso a Orbyt Tecnologia ou seus fornecedores serão responsáveis por quaisquer danos decorrentes do uso ou da incapacidade de usar os materiais em nosso site, mesmo que tenhamos sido notificados oralmente ou por escrito da possibilidade de tais danos.</p>
+        <p>Em nenhum caso a Kytrona Tecnologia ou seus fornecedores serão responsáveis por quaisquer danos decorrentes do uso ou da incapacidade de usar os materiais em nosso site, mesmo que tenhamos sido notificados oralmente ou por escrito da possibilidade de tais danos.</p>
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">5. Precisão dos Materiais</h2>
-        <p>Os materiais exibidos no site da Orbyt Tecnologia podem incluir erros técnicos, tipográficos ou fotográficos. Não garantimos que qualquer material em nosso site seja preciso, completo ou atual. Podemos fazer alterações nos materiais contidos em nosso site a qualquer momento, sem aviso prévio.</p>
+        <p>Os materiais exibidos no site da Kytrona Tecnologia podem incluir erros técnicos, tipográficos ou fotográficos. Não garantimos que qualquer material em nosso site seja preciso, completo ou atual. Podemos fazer alterações nos materiais contidos em nosso site a qualquer momento, sem aviso prévio.</p>
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">6. Links</h2>
-        <p>A Orbyt Tecnologia não analisou todos os sites vinculados ao seu site e não é responsável pelo conteúdo de nenhum site vinculado. A inclusão de qualquer link não implica endosso por nossa parte. O uso de qualquer site vinculado é por conta e risco do usuário.</p>
+        <p>A Kytrona Tecnologia não analisou todos os sites vinculados ao seu site e não é responsável pelo conteúdo de nenhum site vinculado. A inclusão de qualquer link não implica endosso por nossa parte. O uso de qualquer site vinculado é por conta e risco do usuário.</p>
       </section>
     </div>
   </motion.div>
@@ -1576,7 +1576,7 @@ export default function App() {
                   className="h-full w-full bg-brand" 
                 />
               </div>
-              <span className="text-[10px] uppercase tracking-[0.4em] text-muted">Iniciando Orbyt Studio</span>
+              <span className="text-[10px] uppercase tracking-[0.4em] text-muted">Iniciando Kytrona Studio</span>
             </motion.div>
           </motion.div>
         )}
