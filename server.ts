@@ -66,11 +66,22 @@ async function startServer() {
   });
 
   // API routes FIRST
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", env: process.env.NODE_ENV });
+  const apiRouter = express.Router();
+
+  apiRouter.use((req, res, next) => {
+    console.log(`[API-DEBUG] Hit: ${req.method} ${req.path}`);
+    next();
   });
 
-  app.post(["/api/leads", "/api/leads/"], async (req, res) => {
+  apiRouter.get("/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      env: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  apiRouter.post(["/leads", "/leads/"], async (req, res) => {
     const { nome, email, whatsapp, interesse, empresa } = req.body;
 
     // Configuração do transportador de e-mail (SMTP)
@@ -143,6 +154,8 @@ async function startServer() {
     }
   });
 
+  app.use("/api", apiRouter);
+
   // Catch-all for API routes that don't match
   app.all("/api/*", (req, res) => {
     res.status(404).json({ success: false, message: `API route ${req.method} ${req.path} not found.` });
@@ -165,6 +178,10 @@ async function startServer() {
     console.log(`Servindo arquivos estáticos de: ${distPath}`);
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
+      // Garantir que rotas de API não caiam no fallback de HTML
+      if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ success: false, message: "API route not found" });
+      }
       const indexPath = path.join(distPath, 'index.html');
       res.sendFile(indexPath);
     });

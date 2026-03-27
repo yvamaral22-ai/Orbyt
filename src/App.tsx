@@ -1573,6 +1573,14 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
         : '/api/health';
       try {
         const res = await fetch(apiUrl, { mode: 'cors', credentials: 'omit' });
+        const contentType = res.headers.get('content-type');
+        
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await res.text();
+          console.error('[API] Health Check Failed: Resposta não-JSON recebida.', text.substring(0, 100));
+          return;
+        }
+
         const data = await res.json();
         console.log('[API] Health Check:', data);
       } catch (e) {
@@ -1604,8 +1612,8 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
-        console.error('Resposta não-JSON recebida:', text);
-        throw new Error(`O servidor retornou uma resposta inválida (HTML). Isso geralmente acontece quando a URL da API está incorreta ou o servidor não está rodando. Conteúdo: ${text.substring(0, 100)}...`);
+        console.error('Resposta não-JSON recebida:', text.substring(0, 200));
+        throw new Error(`O servidor retornou uma resposta inválida (HTML). Isso geralmente acontece quando o domínio está apontando para o lugar errado ou a API caiu.`);
       }
 
       const result = await response.json();
