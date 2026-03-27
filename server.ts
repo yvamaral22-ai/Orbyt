@@ -2,12 +2,14 @@ import express from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import path from 'path';
+import compression from 'compression';
 import { createServer as createViteServer } from 'vite';
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  app.use(compression()); // Ativa compressão Gzip/Brotli para todos os assets
   app.use(express.json());
   app.use(cors());
   app.options('*', cors()); // Trata explicitamente o preflight de todas as rotas

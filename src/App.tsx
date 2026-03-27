@@ -23,8 +23,7 @@ import {
   X
 } from 'lucide-react';
 import { cn } from './lib/utils';
-import simuVideo from './simu.mp4';
-// const simuVideo = "/simu.mp4";
+const simuVideo = "/simu.mp4";
 
 // --- Types ---
 
@@ -137,18 +136,7 @@ const blogPosts: BlogPost[] = [
 
 const Logo = ({ className = "w-8 h-8", iconClassName = "w-5 h-5" }: { className?: string; iconClassName?: string }) => (
   <div className={cn("bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20", className)}>
-    <svg 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="3" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={cn("text-surface", iconClassName)}
-    >
-      <polyline points="4 17 10 11 4 5" />
-      <line x1="12" y1="19" x2="20" y2="19" />
-    </svg>
+    <Globe className={cn("text-surface", iconClassName)} />
   </div>
 );
 
@@ -452,87 +440,31 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
 };
 
 const VideoBackground = memo(() => {
-  const [activeVideo, setActiveVideo] = useState(1);
-  const videoRef1 = useRef<HTMLVideoElement>(null);
-  const videoRef2 = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const videoUrl = simuVideo;
 
   useEffect(() => {
-    const v1 = videoRef1.current;
-    const v2 = videoRef2.current;
-    
-    if (v1) {
+    const v = videoRef.current;
+    if (v) {
       // Pequeno delay para não competir com a animação de entrada do site
       const playTimeout = setTimeout(() => {
-        v1.play().catch(() => {});
+        v.play().catch(() => {});
       }, 500);
       return () => clearTimeout(playTimeout);
     }
-
-    // Pré-carrega o segundo vídeo apenas quando necessário ou após o início
-    if (v2) {
-      const loadTimeout = setTimeout(() => {
-        v2.load();
-      }, 2000);
-      return () => clearTimeout(loadTimeout);
-    }
   }, []);
-
-  useEffect(() => {
-    const v1 = videoRef1.current;
-    const v2 = videoRef2.current;
-    
-    let rafId: number;
-
-    const checkTime = () => {
-      const activeRef = activeVideo === 1 ? v1 : v2;
-      const nextRef = activeVideo === 1 ? v2 : v1;
-
-      if (activeRef && nextRef && activeRef.duration > 0) {
-        const timeLeft = activeRef.duration - activeRef.currentTime;
-        
-        // Só ativa a lógica de transição quando estiver perto do fim (economiza CPU)
-        if (timeLeft < 1.5) {
-          if (timeLeft < 1.2 && nextRef.paused) {
-            nextRef.currentTime = 0;
-            nextRef.play().then(() => {
-              setActiveVideo(activeVideo === 1 ? 2 : 1);
-            }).catch(() => {});
-          }
-        }
-      }
-      rafId = requestAnimationFrame(checkTime);
-    };
-
-    // Inicia o loop de monitoramento
-    rafId = requestAnimationFrame(checkTime);
-    return () => cancelAnimationFrame(rafId);
-  }, [activeVideo]);
 
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
       <div className="absolute inset-0 transform-gpu">
         <video
-          ref={videoRef1}
+          ref={videoRef}
           muted
           playsInline
+          loop
+          autoPlay
           preload="auto"
-          className={cn(
-            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
-            activeVideo === 1 ? "opacity-100" : "opacity-0"
-          )}
-          style={{ transform: 'translate3d(0,0,0)' }}
-          src={videoUrl}
-        />
-        <video
-          ref={videoRef2}
-          muted
-          playsInline
-          preload="auto"
-          className={cn(
-            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
-            activeVideo === 2 ? "opacity-100" : "opacity-0"
-          )}
+          className="absolute inset-0 w-full h-full object-cover opacity-100"
           style={{ transform: 'translate3d(0,0,0)' }}
           src={videoUrl}
         />
