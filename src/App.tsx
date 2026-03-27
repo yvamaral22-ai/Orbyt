@@ -134,6 +134,23 @@ const blogPosts: BlogPost[] = [
 
 // --- Helper Components ---
 
+const Logo = ({ className = "w-8 h-8", iconClassName = "w-5 h-5" }: { className?: string; iconClassName?: string }) => (
+  <div className={cn("bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20", className)}>
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="3" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={cn("text-surface", iconClassName)}
+    >
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
+    </svg>
+  </div>
+);
+
 const SpotlightCard = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -326,11 +343,11 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
       >
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3 group cursor-pointer" onClick={() => onNavigate('home')}>
-            <div className="w-8 h-8 bg-gradient-to-br from-brand-soft to-brand rounded flex items-center justify-center rotate-3 group-hover:rotate-12 transition-transform shadow-lg shadow-brand/20">
-              <Terminal className="w-5 h-5 text-surface" />
+            <div className="transition-transform duration-500 rotate-3 group-hover:rotate-12">
+              <Logo />
             </div>
             <div className="flex flex-col">
-              <span className="font-display font-bold text-lg leading-none tracking-tighter uppercase">Kytrona <span className="text-brand">TECNOLOGIA</span></span>
+              <span className="font-display font-bold text-lg leading-none tracking-tighter uppercase">KYTRONA <span className="text-brand">TECNOLOGIA</span></span>
               <span className="text-[8px] uppercase tracking-widest text-muted">Software, Produtos e Presença Digital</span>
             </div>
           </div>
@@ -439,13 +456,27 @@ const VideoBackground = memo(() => {
     const v2 = videoRef2.current;
     
     if (v1) {
-      v1.play().catch(() => {});
+      // Pequeno delay para não competir com a animação de entrada do site
+      const playTimeout = setTimeout(() => {
+        v1.play().catch(() => {});
+      }, 500);
+      return () => clearTimeout(playTimeout);
     }
 
-    // Pré-carrega o segundo vídeo
+    // Pré-carrega o segundo vídeo apenas quando necessário ou após o início
     if (v2) {
-      v2.load();
+      const loadTimeout = setTimeout(() => {
+        v2.load();
+      }, 2000);
+      return () => clearTimeout(loadTimeout);
     }
+  }, []);
+
+  useEffect(() => {
+    const v1 = videoRef1.current;
+    const v2 = videoRef2.current;
+    
+    let rafId: number;
 
     const checkTime = () => {
       const activeRef = activeVideo === 1 ? v1 : v2;
@@ -454,18 +485,21 @@ const VideoBackground = memo(() => {
       if (activeRef && nextRef && activeRef.duration > 0) {
         const timeLeft = activeRef.duration - activeRef.currentTime;
         
-        // Inicia a transição 1.2 segundos antes do fim
-        if (timeLeft < 1.2 && nextRef.paused) {
-          nextRef.currentTime = 0;
-          nextRef.play().then(() => {
-            setActiveVideo(activeVideo === 1 ? 2 : 1);
-          }).catch(() => {});
+        // Só ativa a lógica de transição quando estiver perto do fim (economiza CPU)
+        if (timeLeft < 1.5) {
+          if (timeLeft < 1.2 && nextRef.paused) {
+            nextRef.currentTime = 0;
+            nextRef.play().then(() => {
+              setActiveVideo(activeVideo === 1 ? 2 : 1);
+            }).catch(() => {});
+          }
         }
       }
-      requestAnimationFrame(checkTime);
+      rafId = requestAnimationFrame(checkTime);
     };
 
-    const rafId = requestAnimationFrame(checkTime);
+    // Inicia o loop de monitoramento
+    rafId = requestAnimationFrame(checkTime);
     return () => cancelAnimationFrame(rafId);
   }, [activeVideo]);
 
@@ -529,8 +563,8 @@ const Hero = () => {
     <section id="inicio" className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 overflow-hidden px-6">
       <VideoBackground />
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-brand/10 blur-[120px] rounded-full will-change-transform" />
-        <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[120px] rounded-full will-change-transform" />
+        <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-brand/10 blur-[80px] rounded-full will-change-transform" />
+        <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[80px] rounded-full will-change-transform" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -1231,10 +1265,8 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
     <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 items-start">
       <div className="md:col-span-2">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 bg-brand rounded flex items-center justify-center rotate-3">
-            <Terminal className="w-5 h-5 text-surface" />
-          </div>
-          <span className="font-display font-bold text-2xl tracking-tighter uppercase">Kytrona <span className="text-brand">TECNOLOGIA</span></span>
+          <Logo className="w-8 h-8 rounded-lg" />
+          <span className="font-display font-bold text-2xl tracking-tighter uppercase">KYTRONA <span className="text-brand">TECNOLOGIA</span></span>
         </div>
         <p className="text-muted text-sm max-w-xs leading-relaxed">
           Desenvolvimento de software focado em design estratégico e performance extrema. Transformando ideias em autoridade digital.
@@ -1510,7 +1542,9 @@ export default function App() {
   const mouseY = useMotionValue(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000);
+    // Aumentamos levemente o tempo do loader para garantir que os recursos pesados (como vídeo) 
+    // comecem a carregar antes da transição de entrada.
+    const timer = setTimeout(() => setLoading(false), 2500);
     
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
@@ -1565,8 +1599,8 @@ export default function App() {
               transition={{ duration: 0.5 }}
               className="flex flex-col items-center gap-6"
             >
-              <div className="w-16 h-16 bg-brand rounded-2xl flex items-center justify-center rotate-12 animate-pulse shadow-2xl shadow-brand/20">
-                <Terminal className="w-8 h-8 text-surface" />
+              <div className="rotate-12 animate-pulse shadow-2xl shadow-brand/20">
+                <Logo className="w-16 h-16 rounded-2xl" iconClassName="w-10 h-10" />
               </div>
               <div className="h-1 w-48 bg-white/5 rounded-full overflow-hidden">
                 <motion.div 
