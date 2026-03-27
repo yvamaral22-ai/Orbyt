@@ -19,7 +19,8 @@ import {
   MessageSquare,
   Star,
   Play,
-  ArrowLeft
+  ArrowLeft,
+  X
 } from 'lucide-react';
 import { cn } from './lib/utils';
 import simuVideo from './simu.mp4';
@@ -307,7 +308,7 @@ const Counter = ({ target, label }: { target: number; label: string }) => {
 
 // --- Main Components ---
 
-const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
+const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => void; onOpenPopup: () => void }) => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
 
@@ -388,15 +389,11 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 />
               </a>
             ))}
-            <MagneticButton className="bg-brand text-surface px-5 py-2 rounded-full hover:scale-105 transition-all duration-300 font-bold text-[10px]">
-              <a href="#contato" onClick={(e) => {
-                e.preventDefault();
-                onNavigate('home');
-                setTimeout(() => {
-                  const el = document.getElementById('contato');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}>VAMOS CRIAR</a>
+            <MagneticButton 
+              onClick={onOpenPopup}
+              className="bg-brand text-surface px-5 py-2 rounded-full hover:scale-105 transition-all duration-300 font-bold text-[10px]"
+            >
+              ANÁLISE GRÁTIS
             </MagneticButton>
           </div>
 
@@ -438,6 +435,15 @@ const Navbar = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
                 {item.name}
               </a>
             ))}
+            <MagneticButton 
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenPopup();
+              }}
+              className="px-10 py-5 bg-brand text-surface rounded-full font-bold text-lg uppercase tracking-widest mt-8"
+            >
+              Análise Grátis
+            </MagneticButton>
           </motion.div>
         )}
       </AnimatePresence>
@@ -541,7 +547,7 @@ const VideoBackground = memo(() => {
 });
 VideoBackground.displayName = 'VideoBackground';
 
-const Hero = () => {
+const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -583,8 +589,11 @@ const Hero = () => {
             Experiências digitais para marcas e negócios que querem sair do visual genérico: interfaces modernas, interatividade inteligente, performance e valor percebido desde o primeiro scroll.
           </p>
           <div className="flex flex-wrap gap-4">
-            <MagneticButton className="px-8 py-4 bg-brand text-surface rounded-full font-bold text-sm hover:shadow-[0_0_30px_rgba(214,124,82,0.3)] transition-all">
-              <a href="#contato">Quero um projeto assim</a>
+            <MagneticButton 
+              onClick={onOpenPopup}
+              className="px-8 py-4 bg-brand text-surface rounded-full font-bold text-sm hover:shadow-[0_0_30px_rgba(214,124,82,0.3)] transition-all"
+            >
+              Solicitar Análise Grátis
             </MagneticButton>
             <MagneticButton className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-full font-bold text-sm transition-all">
               <a href="#servicos">Explorar serviços</a>
@@ -755,7 +764,7 @@ const Marquee = () => {
   );
 };
 
-const Services = () => {
+const Services = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const services = [
     {
       number: "01",
@@ -790,6 +799,12 @@ const Services = () => {
         <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-6">
           Não é só “um site bonito”. É presença digital com <span className="text-brand italic">intenção</span>.
         </h2>
+        <MagneticButton 
+          onClick={onOpenPopup}
+          className="px-8 py-4 bg-brand text-surface rounded-full font-bold text-sm hover:shadow-[0_0_30px_rgba(214,124,82,0.3)] transition-all"
+        >
+          Solicitar Análise Grátis
+        </MagneticButton>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -823,7 +838,7 @@ const Services = () => {
   );
 };
 
-const Process = () => {
+const Process = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const steps = [
     {
       title: "Imersão",
@@ -855,8 +870,11 @@ const Process = () => {
           <h2 className="text-4xl md:text-5xl font-display font-bold leading-tight mb-8">
             Da ideia ao produto com um processo <span className="text-brand italic">enxuto</span> e orientado a resultado.
           </h2>
-          <MagneticButton className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-full font-bold text-sm transition-all">
-            Ver detalhes do processo
+          <MagneticButton 
+            onClick={onOpenPopup}
+            className="px-8 py-4 bg-brand text-surface rounded-full font-bold text-sm hover:shadow-[0_0_30px_rgba(214,124,82,0.3)] transition-all"
+          >
+            Solicitar Análise Grátis
           </MagneticButton>
         </div>
 
@@ -1202,9 +1220,9 @@ const Featured = () => {
   );
 };
 
-const Contact = () => {
+const Contact = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const [copied, setCopied] = useState(false);
-  const email = "contato@kytronatecnologia.com.br";
+  const email = "contato@kytronatecnologia.com";
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -1232,10 +1250,16 @@ const Contact = () => {
           </h2>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+            <MagneticButton 
+              onClick={onOpenPopup}
+              className="px-10 py-5 bg-surface text-brand rounded-full font-bold text-lg hover:scale-105 transition-all shadow-2xl flex items-center gap-3"
+            >
+              Solicitar Análise Grátis
+            </MagneticButton>
             <div className="relative group">
               <MagneticButton 
                 onClick={copyEmail}
-                className="px-10 py-5 bg-surface text-brand rounded-full font-bold text-lg hover:scale-105 transition-all shadow-2xl flex items-center gap-3"
+                className="px-10 py-5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full font-bold text-lg hover:bg-white/30 transition-all flex items-center gap-3"
               >
                 {email}
                 <AnimatePresence mode="wait">
@@ -1246,12 +1270,12 @@ const Contact = () => {
                   )}
                 </AnimatePresence>
               </MagneticButton>
-              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase tracking-widest text-surface/60 font-bold">
+              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase tracking-widest text-white/60 font-bold">
                 {copied ? "E-mail copiado!" : "Clique para copiar"}
               </div>
             </div>
-            <MagneticButton className="px-10 py-5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full font-bold text-lg hover:bg-white/30 transition-all">
-              <a href="https://wa.me/553598403870" target="_blank" rel="noopener noreferrer">Falar pelo WhatsApp</a>
+            <MagneticButton className="px-10 py-5 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold text-lg transition-all">
+              <a href="https://wa.me/553598403870" target="_blank" rel="noopener noreferrer">WhatsApp</a>
             </MagneticButton>
           </div>
         </motion.div>
@@ -1278,7 +1302,7 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
         <div className="flex flex-col gap-4 text-sm text-muted">
           <a href="https://github.com/yvamaral22-ai" className="hover:text-brand transition-colors">GitHub</a>
           <a href="https://www.linkedin.com/in/ygor-vieira-91bb84237/" className="hover:text-brand transition-colors">LinkedIn</a>
-          <a href="mailto:contato@kytronatecnologia.com.br" className="hover:text-brand transition-colors">E-mail</a>
+          <a href="mailto:contato@kytronatecnologia.com" className="hover:text-brand transition-colors">E-mail</a>
         </div>
       </div>
 
@@ -1478,7 +1502,7 @@ const PrivacyPolicy = ({ onBack, key }: { onBack: () => void; key?: string }) =>
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">6. Contato</h2>
-        <p>Para exercer seus direitos ou tirar dúvidas sobre nossa política, entre em contato através do e-mail: <span className="text-brand">contato@kytronatecnologia.com.br</span></p>
+        <p>Para exercer seus direitos ou tirar dúvidas sobre nossa política, entre em contato através do e-mail: <span className="text-brand">contato@kytronatecnologia.com</span></p>
       </section>
     </div>
   </motion.div>
@@ -1530,10 +1554,179 @@ const TermsOfService = ({ onBack, key }: { onBack: () => void; key?: string }) =
   </motion.div>
 );
 
+// --- Lead Popup Component ---
+
+const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [formState, setFormState] = useState({
+    nome: '',
+    email: '',
+    whatsapp: '',
+    interesse: '',
+    empresa: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Obrigado! Nossos especialistas entrarão em contato em breve.');
+        onClose();
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error('Erro ao enviar lead:', error);
+      alert('Ocorreu um erro ao enviar seus dados. Por favor, tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-surface/80 backdrop-blur-sm"
+          />
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-4xl bg-surface border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+          >
+            <button 
+              onClick={onClose}
+              className="absolute top-4 right-4 z-10 p-2 text-white/50 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Left Side: Image */}
+            <div className="hidden md:block md:w-5/12 relative overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=2070&auto=format&fit=crop" 
+                alt="Kytrona Consulting"
+                className="absolute inset-0 w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+              <div className="absolute bottom-8 left-8 right-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center">
+                    <Logo className="w-6 h-6" iconClassName="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-bold tracking-widest uppercase text-white/80">Kytrona Studio</span>
+                </div>
+                <h3 className="text-2xl font-light text-white leading-tight">
+                  Transformando <span className="text-brand italic serif">visão</span> em software de alto nível.
+                </h3>
+              </div>
+            </div>
+
+            {/* Right Side: Form */}
+            <div className="w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center">
+              <div className="mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                  A Kytrona vai elevar o nível tecnológico do seu negócio.
+                </h2>
+                <p className="text-muted text-sm md:text-base">
+                  Deixe seus dados e receba uma análise estratégica gratuita do seu projeto com nossos especialistas.
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    required
+                    type="text"
+                    placeholder="Nome *"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                    value={formState.nome}
+                    onChange={e => setFormState({...formState, nome: e.target.value})}
+                  />
+                  <input
+                    required
+                    type="email"
+                    placeholder="E-mail *"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                    value={formState.email}
+                    onChange={e => setFormState({...formState, email: e.target.value})}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    required
+                    type="tel"
+                    placeholder="WhatsApp *"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                    value={formState.whatsapp}
+                    onChange={e => setFormState({...formState, whatsapp: e.target.value})}
+                  />
+                  <select
+                    required
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/80 focus:outline-none focus:border-brand/50 transition-colors text-sm appearance-none"
+                    value={formState.interesse}
+                    onChange={e => setFormState({...formState, interesse: e.target.value})}
+                  >
+                    <option value="" disabled className="bg-surface">Estou em busca de...</option>
+                    <option value="site" className="bg-surface">Criação de Site Premium</option>
+                    <option value="saas" className="bg-surface">Desenvolvimento SaaS</option>
+                    <option value="sistema" className="bg-surface">Sistema Personalizado</option>
+                    <option value="consultoria" className="bg-surface">Consultoria Tecnológica</option>
+                  </select>
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Nome da sua empresa (opcional)"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-brand/50 transition-colors text-sm"
+                  value={formState.empresa}
+                  onChange={e => setFormState({...formState, empresa: e.target.value})}
+                />
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-brand hover:bg-brand/90 text-surface font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-brand/20 uppercase tracking-widest text-xs mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Enviando...' : 'Solicitar Análise Grátis'}
+                </button>
+              </form>
+
+              <p className="text-[10px] text-white/30 text-center mt-6 uppercase tracking-wider">
+                Garantimos a privacidade dos seus dados.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 // --- Main App ---
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [showPopup, setShowPopup] = useState(false);
   const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms' | 'insights' | 'post'>('home');
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -1546,6 +1739,11 @@ export default function App() {
     // comecem a carregar antes da transição de entrada.
     const timer = setTimeout(() => setLoading(false), 2500);
     
+    // Trigger popup after 8 seconds on every page load
+    const popupTimer = setTimeout(() => {
+      setShowPopup(true);
+    }, 8000);
+
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
@@ -1559,6 +1757,7 @@ export default function App() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
       clearTimeout(timer);
+      clearTimeout(popupTimer);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
@@ -1623,7 +1822,7 @@ export default function App() {
           transition={{ duration: 1 }}
           className="relative"
         >
-          <Navbar onNavigate={navigateTo} />
+          <Navbar onNavigate={navigateTo} onOpenPopup={() => setShowPopup(true)} />
           
           <AnimatePresence mode="wait">
             {currentPage === 'home' ? (
@@ -1634,16 +1833,16 @@ export default function App() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <Hero />
+                <Hero onOpenPopup={() => setShowPopup(true)} />
                 <TechStack />
                 <Marquee />
-                <Services />
+                <Services onOpenPopup={() => setShowPopup(true)} />
                 <Portfolio />
                 <Testimonials />
                 <FAQ />
                 <Featured />
-                <Process />
-                <Contact />
+                <Process onOpenPopup={() => setShowPopup(true)} />
+                <Contact onOpenPopup={() => setShowPopup(true)} />
               </motion.div>
             ) : currentPage === 'insights' ? (
               <Insights key="insights" onSelectPost={handleSelectPost} />
@@ -1657,6 +1856,8 @@ export default function App() {
           </AnimatePresence>
 
           <Footer onNavigate={navigateTo} />
+
+          <LeadPopup isOpen={showPopup} onClose={() => setShowPopup(false)} />
 
           <motion.div 
             initial={{ opacity: 0, scale: 0 }}
