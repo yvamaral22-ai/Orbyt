@@ -15,24 +15,24 @@ async function startServer() {
   app.post('/api/leads', async (req, res) => {
     const { nome, email, whatsapp, interesse, empresa } = req.body;
 
-    // Configuração do Transportador SMTP (Hostinger)
+    // Configuração do Transportador SMTP (Hostinger - Usando porta 465 SSL/TLS conforme solicitado)
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.hostinger.com',
       port: Number(process.env.SMTP_PORT) || 465,
-      secure: (process.env.SMTP_PORT === '465') || (!process.env.SMTP_PORT), // true para porta 465 (SSL/TLS)
+      secure: !process.env.SMTP_PORT || process.env.SMTP_PORT === '465', // true para porta 465
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
       tls: {
-        rejectUnauthorized: false // Ignora erros de certificado auto-assinado
+        rejectUnauthorized: false
       },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
+      connectionTimeout: 20000, // Aumentado para 20s para evitar timeouts
+      greetingTimeout: 20000,
     });
 
     const mailOptions = {
-      from: `"Kytrona Website" <${process.env.SMTP_USER}>`,
+      from: `"Kytrona Website" <${process.env.SMTP_USER || 'contato@kytronatecnologia.com'}>`,
       to: 'contato@kytronatecnologia.com',
       subject: `Novo Lead: ${nome} - ${interesse}`,
       text: `
@@ -56,13 +56,19 @@ async function startServer() {
 
     try {
       if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        throw new Error('Configurações de SMTP ausentes no ambiente.');
+        throw new Error('Configurações de SMTP (USER ou PASS) não encontradas nas Environment Variables.');
       }
-      await transporter.sendMail(mailOptions);
+      const info = await transporter.sendMail(mailOptions);
+      console.log('E-mail enviado:', info.messageId);
       res.status(200).json({ success: true, message: 'Lead enviado com sucesso!' });
-    } catch (error) {
-      console.error('Erro ao enviar e-mail:', error);
-      res.status(500).json({ success: false, error: 'Erro interno ao processar o lead.' });
+    } catch (error: any) {
+      console.error('Erro detalhado ao enviar e-mail:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Erro desconhecido no servidor de e-mail.',
+        code: error.code,
+        command: error.command
+      });
     }
   });
 
