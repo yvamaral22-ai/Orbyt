@@ -1170,7 +1170,7 @@ const Featured = () => {
 
 const Contact = () => {
   const [copied, setCopied] = useState(false);
-  const email = "contato@Kytronatecnologia.com.br";
+  const email = "contato@kytronatecnologia.com.br";
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -1246,7 +1246,7 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
         <div className="flex flex-col gap-4 text-sm text-muted">
           <a href="https://github.com/yvamaral22-ai" className="hover:text-brand transition-colors">GitHub</a>
           <a href="https://www.linkedin.com/in/ygor-vieira-91bb84237/" className="hover:text-brand transition-colors">LinkedIn</a>
-          <a href="mailto:contato@Kytronatecnologia.com.br" className="hover:text-brand transition-colors">E-mail</a>
+          <a href="mailto:contato@kytronatecnologia.com.br" className="hover:text-brand transition-colors">E-mail</a>
         </div>
       </div>
 
@@ -1446,7 +1446,7 @@ const PrivacyPolicy = ({ onBack, key }: { onBack: () => void; key?: string }) =>
       </section>
       <section>
         <h2 className="text-2xl font-bold text-white mb-4">6. Contato</h2>
-        <p>Para exercer seus direitos ou tirar dúvidas sobre nossa política, entre em contato através do e-mail: <span className="text-brand">contato@Kytronatecnologia.com.br</span></p>
+        <p>Para exercer seus direitos ou tirar dúvidas sobre nossa política, entre em contato através do e-mail: <span className="text-brand">contato@kytronatecnologia.com.br</span></p>
       </section>
     </div>
   </motion.div>
