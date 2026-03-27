@@ -1583,11 +1583,11 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
         alert('Obrigado! Nossos especialistas entrarão em contato em breve.');
         onClose();
       } else {
-        throw new Error(result.message);
+        throw new Error(result.error || result.message || 'Erro desconhecido');
       }
     } catch (error) {
       console.error('Erro ao enviar lead:', error);
-      alert('Ocorreu um erro ao enviar seus dados. Por favor, tente novamente.');
+      alert(`Ocorreu um erro ao enviar seus dados: ${error instanceof Error ? error.message : 'Tente novamente.'}`);
     } finally {
       setIsSubmitting(false);
     }

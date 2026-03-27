@@ -44,6 +44,10 @@ async function startServer() {
         user: process.env.SMTP_USER || "contato@kytronatecnologia.com",
         pass: process.env.SMTP_PASS,
       },
+      connectionTimeout: 10000, // 10 segundos
+      tls: {
+        rejectUnauthorized: false
+      }
     });
 
     const mailOptions = {
@@ -75,18 +79,28 @@ async function startServer() {
       `,
     };
 
+    // Log para depuração (Remover em produção)
+    console.log("Tentando enviar lead com SMTP:", {
+      host: process.env.SMTP_HOST || "smtp.hostinger.com",
+      port: process.env.SMTP_PORT || "465",
+      user: process.env.SMTP_USER || "contato@kytronatecnologia.com",
+      hasPass: !!process.env.SMTP_PASS,
+      secure: process.env.SMTP_SECURE !== "false"
+    });
+
     try {
       if (process.env.SMTP_USER && process.env.SMTP_PASS) {
         await transporter.sendMail(mailOptions);
+        console.log("E-mail enviado com sucesso!");
         res.json({ success: true, message: "Lead enviado com sucesso!" });
       } else {
         // Fallback para logs se não houver SMTP configurado
-        console.log("SMTP não configurado. Lead recebido:", req.body);
+        console.log("SMTP não configurado (Faltando USER ou PASS). Lead recebido:", req.body);
         res.json({ success: true, message: "Lead recebido (SMTP não configurado)." });
       }
     } catch (error) {
-      console.error("Erro ao enviar e-mail:", error);
-      res.status(500).json({ success: false, message: "Erro ao processar lead." });
+      console.error("Erro detalhado ao enviar e-mail:", error);
+      res.status(500).json({ success: false, message: "Erro ao processar lead.", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
