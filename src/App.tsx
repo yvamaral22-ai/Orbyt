@@ -1559,41 +1559,12 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
     setIsSubmitting(true);
     
     try {
-      // Usando FormData para garantir compatibilidade máxima com Web3Forms e evitar erros de chave
-      const formData = new FormData();
-      formData.append("access_key", "c56f14a1-124d-4dbf-aa00-df325b698005");
-      formData.append("from_name", "Kytrona Tecnologia - Site Oficial");
-      formData.append("subject", `🚀 NOVO LEAD: ${formState.nome.toUpperCase()}`);
-      formData.append("replyto", formState.email);
-      
-      // Campos amigáveis para a tabela do e-mail
-      formData.append("Nome do Cliente", formState.nome);
-      formData.append("E-mail de Contato", formState.email);
-      formData.append("WhatsApp/Telefone", formState.whatsapp);
-      formData.append("Serviço de Interesse", formState.interesse);
-      formData.append("Empresa/Projeto", formState.empresa || "Não informado");
-      
-      // Corpo da mensagem formatado
-      const messageBody = `
-        Novo lead capturado via site Kytrona Tecnologia.
-        
-        DETALHES DO CONTATO:
-        -------------------
-        Nome: ${formState.nome}
-        E-mail: ${formState.email}
-        WhatsApp: ${formState.whatsapp}
-        Interesse: ${formState.interesse}
-        Empresa: ${formState.empresa || 'Não informada'}
-        
-        AÇÃO RÁPIDA:
-        -------------------
-        Abrir conversa no WhatsApp: https://wa.me/${formState.whatsapp.replace(/\D/g, '')}
-      `;
-      formData.append("message", messageBody);
-
-      const response = await fetch('https://api.web3forms.com/submit', {
+      const response = await fetch('/api/leads', {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formState),
       });
       
       const result = await response.json();
@@ -1601,13 +1572,19 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
       if (result.success) {
         alert('Obrigado! Nossos especialistas entrarão em contato em breve.');
         onClose();
+        setFormState({
+          nome: '',
+          email: '',
+          whatsapp: '',
+          interesse: '',
+          empresa: ''
+        });
       } else {
-        // Se der erro de chave, mostramos o erro detalhado do Web3Forms
-        throw new Error(result.message || 'Erro ao validar chave do formulário');
+        throw new Error(result.error || 'Erro ao enviar lead');
       }
     } catch (error: any) {
       console.error('Erro ao enviar lead:', error);
-      alert(`Erro ao enviar: ${error.message}\n\nPor favor, verifique se a chave do Web3Forms está correta.`);
+      alert(`Erro ao enviar: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }

@@ -4,10 +4,18 @@ import cors from 'cors';
 import path from 'path';
 import compression from 'compression';
 import { createServer as createViteServer } from 'vite';
+import rateLimit from 'express-rate-limit';
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Limitador para evitar spam no endpoint de leads
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 5, // Limita cada IP a 5 solicitações de lead por janela
+    message: { success: false, error: 'Muitas solicitações enviadas. Tente novamente em 15 minutos.' }
+  });
 
   app.use(compression()); // Ativa compressão Gzip/Brotli para todos os assets
   app.use(express.json());
@@ -15,7 +23,7 @@ async function startServer() {
   app.options('*', cors()); // Trata explicitamente o preflight de todas as rotas
 
   // API Route for Leads (Aceita com ou sem barra no final para evitar redirecionamentos)
-  app.post(['/api/leads', '/api/leads/'], async (req, res) => {
+  app.post(['/api/leads', '/api/leads/'], apiLimiter, async (req, res) => {
     console.log('Recebendo lead no servidor...');
     const { nome, email, whatsapp, interesse, empresa } = req.body;
 
