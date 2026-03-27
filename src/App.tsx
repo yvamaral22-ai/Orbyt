@@ -1575,8 +1575,11 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
     setIsSubmitting(true);
     
     try {
-      // Chamada para o SEU PRÓPRIO SERVIDOR
-      const response = await fetch('/api/leads', {
+      // Chamada para o SEU PRÓPRIO SERVIDOR (AI Studio)
+      // Usamos a URL absoluta para que funcione mesmo quando o site estiver na Hostinger
+      const API_URL = 'https://ais-dev-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/leads';
+      
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formState)
