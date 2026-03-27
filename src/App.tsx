@@ -451,31 +451,72 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
 };
 
 const VideoBackground = memo(() => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [activeVideo, setActiveVideo] = useState(1);
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
   const videoUrl = simuVideo;
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (v) {
-      // Pequeno delay para não competir com a animação de entrada do site
-      const playTimeout = setTimeout(() => {
-        v.play().catch(() => {});
-      }, 500);
-      return () => clearTimeout(playTimeout);
+    // Início imediato do primeiro vídeo
+    if (videoRef1.current) {
+      videoRef1.current.play().catch(() => {});
     }
   }, []);
+
+  useEffect(() => {
+    const v1 = videoRef1.current;
+    const v2 = videoRef2.current;
+    if (!v1 || !v2) return;
+
+    let rafId: number;
+    const fadeTime = 1.5; // segundos antes do fim para iniciar o crossfade
+
+    const checkTime = () => {
+      const active = activeVideo === 1 ? v1 : v2;
+      const next = activeVideo === 1 ? v2 : v1;
+
+      if (active.duration > 0) {
+        const timeLeft = active.duration - active.currentTime;
+        
+        // Inicia o próximo vídeo um pouco antes do atual acabar
+        if (timeLeft <= fadeTime && next.paused) {
+          next.currentTime = 0;
+          next.play().then(() => {
+            setActiveVideo(activeVideo === 1 ? 2 : 1);
+          }).catch(() => {});
+        }
+      }
+      rafId = requestAnimationFrame(checkTime);
+    };
+
+    rafId = requestAnimationFrame(checkTime);
+    return () => cancelAnimationFrame(rafId);
+  }, [activeVideo]);
 
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
       <div className="absolute inset-0 transform-gpu">
         <video
-          ref={videoRef}
+          ref={videoRef1}
           muted
           playsInline
-          loop
-          autoPlay
           preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-100"
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-[1500ms] ease-in-out",
+            activeVideo === 1 ? "opacity-100" : "opacity-0"
+          )}
+          style={{ transform: 'translate3d(0,0,0)' }}
+          src={videoUrl}
+        />
+        <video
+          ref={videoRef2}
+          muted
+          playsInline
+          preload="auto"
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-[1500ms] ease-in-out",
+            activeVideo === 2 ? "opacity-100" : "opacity-0"
+          )}
           style={{ transform: 'translate3d(0,0,0)' }}
           src={videoUrl}
         />
