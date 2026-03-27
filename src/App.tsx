@@ -136,7 +136,18 @@ const blogPosts: BlogPost[] = [
 
 const Logo = ({ className = "w-8 h-8", iconClassName = "w-5 h-5" }: { className?: string; iconClassName?: string }) => (
   <div className={cn("bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20", className)}>
-    <Globe className={cn("text-surface", iconClassName)} />
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="3" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={cn("text-surface", iconClassName)}
+    >
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
+    </svg>
   </div>
 );
 
