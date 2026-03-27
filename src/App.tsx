@@ -1567,27 +1567,7 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const checkHealth = async () => {
-      const apiUrl = window.location.hostname === 'kytronatecnologia.com'
-        ? 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/health'
-        : '/api/health';
-      try {
-        const res = await fetch(apiUrl, { mode: 'cors', credentials: 'omit' });
-        const contentType = res.headers.get('content-type');
-        
-        if (!contentType || !contentType.includes('application/json')) {
-          const text = await res.text();
-          console.error('[API] Health Check Failed: Resposta não-JSON recebida.', text.substring(0, 100));
-          return;
-        }
-
-        const data = await res.json();
-        console.log('[API] Health Check:', data);
-      } catch (e) {
-        console.error('[API] Health Check Failed:', e);
-      }
-    };
-    checkHealth();
+    // Health check removido para simplificar e usar Web3Forms
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -1595,38 +1575,24 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
     setIsSubmitting(true);
     
     try {
-      // Se estivermos no domínio customizado que está apontando para outro lugar (ex: Vercel),
-      // usamos a URL absoluta do Cloud Run para garantir que a API seja alcançada.
-      const apiUrl = window.location.hostname === 'kytronatecnologia.com'
-        ? 'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app/api/leads'
-        : '/api/leads';
-
-      const response = await fetch(apiUrl, {
+      // Chamada para o SEU PRÓPRIO SERVIDOR
+      const response = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formState),
-        mode: 'cors',
-        credentials: 'omit'
+        body: JSON.stringify(formState)
       });
       
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Resposta não-JSON recebida:', text.substring(0, 200));
-        throw new Error(`O servidor retornou uma resposta inválida (HTML). Isso geralmente acontece quando o domínio está apontando para o lugar errado ou a API caiu.`);
-      }
-
       const result = await response.json();
       
       if (result.success) {
         alert('Obrigado! Nossos especialistas entrarão em contato em breve.');
         onClose();
       } else {
-        throw new Error(result.error || result.message || 'Erro desconhecido');
+        throw new Error(result.error || 'Erro ao enviar formulário');
       }
     } catch (error) {
       console.error('Erro ao enviar lead:', error);
-      alert(`Ocorreu um erro ao enviar seus dados: ${error instanceof Error ? error.message : 'Tente novamente.'}`);
+      alert('Houve um erro ao enviar sua mensagem. Por favor, verifique se as configurações de e-mail do servidor estão corretas ou tente via WhatsApp.');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,194 +1,93 @@
-import express from "express";
-import { createServer as createViteServer } from "vite";
-import path from "path";
-import { fileURLToPath } from "url";
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-import cors from "cors";
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import express from 'express';
+import nodemailer from 'nodemailer';
+import cors from 'cors';
+import path from 'path';
+import { createServer as createViteServer } from 'vite';
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  console.log(`[SERVER] Iniciando servidor em modo: ${process.env.NODE_ENV || 'development'}`);
-
-  app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    // Lista de origens permitidas
-    const allowedOrigins = [
-      'https://kytronatecnologia.com',
-      'http://localhost:3000',
-      'https://ais-pre-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app',
-      'https://ais-dev-6d6u34qhdfvokii2es4ebq-550122452113.us-east1.run.app'
-    ];
-
-    if (origin && (allowedOrigins.includes(origin) || origin.endsWith('.run.app'))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-    } else if (!origin) {
-      // Para requisições sem origin (como ferramentas de teste), podemos opcionalmente permitir
-      res.setHeader('Access-Control-Allow-Origin', '*');
-    }
-
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    
-    if (req.method === 'OPTIONS') {
-      return res.sendStatus(200);
-    }
-    next();
-  });
   app.use(express.json());
+  app.use(cors());
 
-  // Middleware de Log Detalhado
-  app.use((req, res, next) => {
-    console.log(`[DEBUG] ${new Date().toISOString()} - ${req.method} ${req.path} - Host: ${req.headers.host}`);
-    next();
-  });
-
-  // Middleware para capturar informações de visitantes
-  app.use((req, res, next) => {
-    if (!req.path.startsWith('/api')) {
-      const visitorInfo = {
-        timestamp: new Date().toISOString(),
-        ip: req.ip || req.headers['x-forwarded-for'],
-        userAgent: req.headers['user-agent'],
-        path: req.path
-      };
-      console.log(`[VISITA] ${visitorInfo.timestamp} - IP: ${visitorInfo.ip} - Navegador: ${visitorInfo.userAgent} - Página: ${visitorInfo.path}`);
-    }
-    next();
-  });
-
-  // API routes FIRST
-  const apiRouter = express.Router();
-
-  apiRouter.use((req, res, next) => {
-    console.log(`[API-DEBUG] Hit: ${req.method} ${req.path}`);
-    next();
-  });
-
-  apiRouter.get("/health", (req, res) => {
-    res.json({ 
-      status: "ok", 
-      env: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
-    });
-  });
-
-  apiRouter.post(["/leads", "/leads/"], async (req, res) => {
+  // API Route for Leads
+  app.post('/api/leads', async (req, res) => {
     const { nome, email, whatsapp, interesse, empresa } = req.body;
 
-    // Configuração do transportador de e-mail (SMTP)
-    // O usuário deve configurar essas variáveis no ambiente
+    // Configuração do Transportador SMTP (Hostinger)
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || "smtp.hostinger.com",
-      port: parseInt(process.env.SMTP_PORT || "465"),
-      secure: process.env.SMTP_SECURE !== "false", // Default to true for port 465
+      host: process.env.SMTP_HOST || 'smtp.hostinger.com',
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: (process.env.SMTP_PORT === '465') || (!process.env.SMTP_PORT), // true para porta 465 (SSL/TLS)
       auth: {
-        user: process.env.SMTP_USER || "contato@kytronatecnologia.com",
+        user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      connectionTimeout: 10000, // 10 segundos
       tls: {
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false // Ignora erros de certificado auto-assinado
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
     });
 
     const mailOptions = {
-      from: `"Kytrona Leads" <${process.env.SMTP_USER || "contato@kytronatecnologia.com"}>`,
-      to: "contato@kytronatecnologia.com", // E-mail de destino do usuário
+      from: `"Kytrona Website" <${process.env.SMTP_USER}>`,
+      to: 'contato@kytronatecnologia.com',
       subject: `Novo Lead: ${nome} - ${interesse}`,
       text: `
-        Novo lead capturado no site:
+        Novo lead recebido pelo site:
         
         Nome: ${nome}
         E-mail: ${email}
         WhatsApp: ${whatsapp}
         Interesse: ${interesse}
-        Empresa: ${empresa || "Não informada"}
-        
-        Data: ${new Date().toLocaleString('pt-BR')}
+        Empresa: ${empresa || 'Não informada'}
       `,
       html: `
-        <div style="font-family: sans-serif; padding: 20px; color: #333;">
-          <h2 style="color: #FF6321;">Novo Lead Capturado</h2>
-          <p><strong>Nome:</strong> ${nome}</p>
-          <p><strong>E-mail:</strong> ${email}</p>
-          <p><strong>WhatsApp:</strong> ${whatsapp}</p>
-          <p><strong>Interesse:</strong> ${interesse}</p>
-          <p><strong>Empresa:</strong> ${empresa || "Não informada"}</p>
-          <hr />
-          <p style="font-size: 12px; color: #666;">Data: ${new Date().toLocaleString('pt-BR')}</p>
-        </div>
+        <h3>Novo lead recebido pelo site</h3>
+        <p><strong>Nome:</strong> ${nome}</p>
+        <p><strong>E-mail:</strong> ${email}</p>
+        <p><strong>WhatsApp:</strong> ${whatsapp}</p>
+        <p><strong>Interesse:</strong> ${interesse}</p>
+        <p><strong>Empresa:</strong> ${empresa || 'Não informada'}</p>
       `,
     };
 
-    // Log para depuração (Remover em produção)
-    console.log("Tentando enviar lead com SMTP:", {
-      host: process.env.SMTP_HOST || "smtp.hostinger.com",
-      port: process.env.SMTP_PORT || "465",
-      user: process.env.SMTP_USER || "contato@kytronatecnologia.com",
-      hasPass: !!process.env.SMTP_PASS,
-      secure: process.env.SMTP_SECURE !== "false"
-    });
-
     try {
-      if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-        await transporter.sendMail(mailOptions);
-        console.log("E-mail enviado com sucesso!");
-        res.json({ success: true, message: "Lead enviado com sucesso!" });
-      } else {
-        // Fallback para logs se não houver SMTP configurado
-        console.log("SMTP não configurado (Faltando USER ou PASS). Lead recebido:", req.body);
-        res.json({ success: true, message: "Lead recebido (SMTP não configurado)." });
+      if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        throw new Error('Configurações de SMTP ausentes no ambiente.');
       }
+      await transporter.sendMail(mailOptions);
+      res.status(200).json({ success: true, message: 'Lead enviado com sucesso!' });
     } catch (error) {
-      console.error("Erro detalhado ao enviar e-mail:", error);
-      res.status(500).json({ success: false, message: "Erro ao processar lead.", error: error instanceof Error ? error.message : String(error) });
+      console.error('Erro ao enviar e-mail:', error);
+      res.status(500).json({ success: false, error: 'Erro interno ao processar o lead.' });
     }
   });
 
-  app.use("/api", apiRouter);
-
-  // Catch-all for API routes that don't match
-  app.all("/api/*", (req, res) => {
-    res.status(404).json({ success: false, message: `API route ${req.method} ${req.path} not found.` });
+  // Health Check
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', version: '2.0.0' });
   });
 
-  // Serve static files from public folder in development
-  if (process.env.NODE_ENV !== "production") {
-    app.use(express.static(path.join(__dirname, "public")));
-  }
-
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  // Vite integration
+  if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: "spa",
+      appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    console.log(`Servindo arquivos estáticos de: ${distPath}`);
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      // Garantir que rotas de API não caiam no fallback de HTML
-      if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ success: false, message: "API route not found" });
-      }
-      const indexPath = path.join(distPath, 'index.html');
-      res.sendFile(indexPath);
+      res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor Kytrona rodando em http://localhost:${PORT}`);
   });
 }
 
