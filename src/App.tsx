@@ -1590,9 +1590,10 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
       } else {
         throw new Error(result.error || 'Erro ao enviar formulário');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao enviar lead:', error);
-      alert('Houve um erro ao enviar sua mensagem. Por favor, verifique se as configurações de e-mail do servidor estão corretas ou tente via WhatsApp.');
+      const errorMsg = error.message || 'Erro desconhecido';
+      alert(`Erro no Servidor: ${errorMsg}\n\nPor favor, verifique as Environment Variables no AI Studio.`);
     } finally {
       setIsSubmitting(false);
     }
