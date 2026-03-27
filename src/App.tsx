@@ -1575,42 +1575,41 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
     setIsSubmitting(true);
     
     try {
-      // Configurando o Web3Forms com nomes amigáveis para o e-mail chegar profissional
+      // Usando FormData para garantir compatibilidade máxima com Web3Forms e evitar erros de chave
+      const formData = new FormData();
+      formData.append("access_key", "c56f14a1-124d-4dbf-aa00-df325b698005");
+      formData.append("from_name", "Kytrona Tecnologia - Site Oficial");
+      formData.append("subject", `🚀 NOVO LEAD: ${formState.nome.toUpperCase()}`);
+      formData.append("replyto", formState.email);
+      
+      // Campos amigáveis para a tabela do e-mail
+      formData.append("Nome do Cliente", formState.nome);
+      formData.append("E-mail de Contato", formState.email);
+      formData.append("WhatsApp/Telefone", formState.whatsapp);
+      formData.append("Serviço de Interesse", formState.interesse);
+      formData.append("Empresa/Projeto", formState.empresa || "Não informado");
+      
+      // Corpo da mensagem formatado
+      const messageBody = `
+        Novo lead capturado via site Kytrona Tecnologia.
+        
+        DETALHES DO CONTATO:
+        -------------------
+        Nome: ${formState.nome}
+        E-mail: ${formState.email}
+        WhatsApp: ${formState.whatsapp}
+        Interesse: ${formState.interesse}
+        Empresa: ${formState.empresa || 'Não informada'}
+        
+        AÇÃO RÁPIDA:
+        -------------------
+        Abrir conversa no WhatsApp: https://wa.me/${formState.whatsapp.replace(/\D/g, '')}
+      `;
+      formData.append("message", messageBody);
+
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_key: "79040713-3330-4965-8097-488669578021",
-          from_name: "Kytrona Tecnologia - Site Oficial",
-          subject: `🚀 NOVO LEAD: ${formState.nome.toUpperCase()}`,
-          
-          // Nomes amigáveis que aparecerão na tabela do e-mail
-          "Nome do Cliente": formState.nome,
-          "E-mail de Contato": formState.email,
-          "WhatsApp/Telefone": formState.whatsapp,
-          "Serviço de Interesse": formState.interesse,
-          "Empresa/Projeto": formState.empresa || "Não informado",
-          
-          // Resumo formatado para o corpo do e-mail
-          message: `
-            Novo lead capturado via site Kytrona Tecnologia.
-            
-            DETALHES DO CONTATO:
-            -------------------
-            Nome: ${formState.nome}
-            E-mail: ${formState.email}
-            WhatsApp: ${formState.whatsapp}
-            Interesse: ${formState.interesse}
-            Empresa: ${formState.empresa || 'Não informada'}
-            
-            AÇÃO RÁPIDA:
-            -------------------
-            Abrir conversa no WhatsApp: https://wa.me/${formState.whatsapp.replace(/\D/g, '')}
-          `,
-          
-          // Permite que você responda o e-mail diretamente para o cliente
-          replyto: formState.email,
-        })
+        body: formData
       });
       
       const result = await response.json();
@@ -1619,11 +1618,12 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
         alert('Obrigado! Nossos especialistas entrarão em contato em breve.');
         onClose();
       } else {
-        throw new Error(result.message || 'Erro ao enviar formulário');
+        // Se der erro de chave, mostramos o erro detalhado do Web3Forms
+        throw new Error(result.message || 'Erro ao validar chave do formulário');
       }
     } catch (error: any) {
       console.error('Erro ao enviar lead:', error);
-      alert('Desculpe, houve um erro ao enviar seus dados. Por favor, tente novamente ou entre em contato via WhatsApp.');
+      alert(`Erro ao enviar: ${error.message}\n\nPor favor, verifique se a chave do Web3Forms está correta.`);
     } finally {
       setIsSubmitting(false);
     }
