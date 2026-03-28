@@ -1119,7 +1119,7 @@ const Process = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   );
 };
 
-const Portfolio = () => {
+const Portfolio = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const projects = [
     {
@@ -1491,10 +1491,15 @@ const Portfolio = () => {
       </div>
 
       <div className="portfolio-sticky h-screen sticky top-0 flex items-center overflow-hidden">
-        <div className="portfolio-container flex gap-10 md:gap-24 px-[10vw] md:px-[20vw] items-center">
+        {/* Large Background Text (Lando Norris Style) */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 text-[30rem] font-display font-black text-white/[0.02] whitespace-nowrap select-none pointer-events-none z-0 portfolio-bg-text">
+          KYTRONA PORTFOLIO 2026 KYTRONA PORTFOLIO 2026
+        </div>
+
+        <div className="portfolio-container flex gap-10 md:gap-24 px-[10vw] md:px-[20vw] items-center relative z-10">
           <div className="portfolio-intro flex flex-col justify-center min-w-[85vw] md:min-w-[30vw] pr-8 md:pr-32 flex-shrink-0">
             <span className="text-brand text-[10px] uppercase tracking-[0.4em] font-bold mb-8 block gsap-reveal">Selected Works / 002</span>
-            <h2 className="text-5xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12 gsap-reveal break-words">
+            <h2 className="text-4xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12 gsap-reveal break-words">
               Projetos que <br />
               <span className="text-brand italic">definem o futuro.</span>
             </h2>
@@ -1506,8 +1511,13 @@ const Portfolio = () => {
           {projects.map((project, idx) => (
             <div
               key={idx}
-              className="project-card min-w-[85vw] md:min-w-[42vw] h-[65vh] md:h-[75vh] relative group overflow-hidden border border-white/10 bg-surface/50 backdrop-blur-sm flex flex-col cursor-none flex-shrink-0 transition-all duration-700 hover:border-brand/40 hover:shadow-2xl hover:shadow-brand/5"
+              className="project-card min-w-[85vw] md:min-w-[45vw] h-[60vh] md:h-[75vh] relative group overflow-hidden border border-white/10 bg-surface/50 backdrop-blur-sm flex flex-col cursor-none flex-shrink-0 transition-all duration-700 hover:border-brand/40 hover:shadow-2xl hover:shadow-brand/5"
             >
+              {/* Large Background Number (Lando Norris Style) */}
+              <div className="absolute -top-12 -left-12 text-[20rem] font-display font-black text-white/[0.03] select-none pointer-events-none z-0 project-number-parallax">
+                {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+              </div>
+
               <div className={cn("flex-1 relative overflow-hidden p-6 md:p-12 gsap-mask-reveal-horizontal", project.color)}>
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
                 
@@ -1518,7 +1528,7 @@ const Portfolio = () => {
 
                 <motion.div 
                   whileHover={{ y: -10, scale: 1.02 }}
-                  className="w-full h-full bg-surface/40 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden flex flex-col relative z-10"
+                  className="w-full h-full bg-surface/40 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden flex flex-col relative z-10 project-inner-parallax"
                 >
                   <div className="h-6 bg-white/5 border-b border-white/10 flex items-center px-3 gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
@@ -1531,7 +1541,7 @@ const Portfolio = () => {
                 </motion.div>
               </div>
 
-              <div className="p-8 md:p-12 bg-surface/80 backdrop-blur-md border-t border-white/10 relative">
+              <div className="p-8 md:p-12 bg-surface/80 backdrop-blur-md border-t border-white/10 relative z-10">
                 <div className="flex justify-between items-start mb-4 md:mb-6">
                   <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">{project.category}</span>
                 </div>
@@ -1549,14 +1559,18 @@ const Portfolio = () => {
           ))}
 
           <div className="portfolio-outro flex flex-col justify-center min-w-[85vw] md:min-w-[30vw] pl-8 md:pl-32 flex-shrink-0">
-            <h2 className="text-5xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12">
+            <h2 className="text-4xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12">
               Seu projeto <br />
               <span className="text-brand italic">é o próximo?</span>
             </h2>
             <MagneticButton 
-              className="px-10 py-5 md:px-12 md:py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500 w-fit"
+              onClick={() => onNavigate('contact')}
+              className="group flex items-center gap-6"
             >
-              Vamos Conversar
+              <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-brand group-hover:border-brand transition-all duration-500">
+                <ArrowUpRight className="w-6 h-6 group-hover:text-surface transition-colors" />
+              </div>
+              <span className="text-sm font-bold uppercase tracking-[0.3em]">Vamos Conversar</span>
             </MagneticButton>
           </div>
         </div>
@@ -2483,12 +2497,25 @@ function App() {
           pin: true,
           start: "top top",
           end: () => `+=${getScrollWidth()}`,
-          scrub: 1,
+          scrub: 2, // More lag for "fluidity"
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             if (portfolioProgress) {
               gsap.to(portfolioProgress, { scaleX: self.progress, duration: 0.1, ease: "none" });
             }
+            
+            // Velocity-based skew and rotation effect (Lando Norris Style)
+            const velocity = self.getVelocity();
+            const skew = velocity / 150; // Increased intensity
+            const rotation = velocity / 500;
+            
+            gsap.to('.project-card', {
+              skewX: skew,
+              rotation: rotation,
+              duration: 0.6,
+              ease: "power2.out",
+              overwrite: true
+            });
           }
         }
       });
@@ -2496,7 +2523,7 @@ function App() {
       // Parallax effect for project titles inside cards
       gsap.utils.toArray('.project-title-parallax').forEach((title: any) => {
         gsap.to(title, {
-          x: -100,
+          x: -150, // More intense parallax
           ease: "none",
           scrollTrigger: {
             trigger: title,
@@ -2508,10 +2535,52 @@ function App() {
         });
       });
 
+      // Parallax effect for background numbers
+      gsap.utils.toArray('.project-number-parallax').forEach((number: any) => {
+        gsap.to(number, {
+          x: 200, // Moves opposite direction for depth
+          ease: "none",
+          scrollTrigger: {
+            trigger: number,
+            containerAnimation: horizontalScroll,
+            start: "left right",
+            end: "right left",
+            scrub: true
+          }
+        });
+      });
+
+      // Parallax effect for inner content
+      gsap.utils.toArray('.project-inner-parallax').forEach((inner: any) => {
+        gsap.to(inner, {
+          x: -80,
+          ease: "none",
+          scrollTrigger: {
+            trigger: inner,
+            containerAnimation: horizontalScroll,
+            start: "left right",
+            end: "right left",
+            scrub: true
+          }
+        });
+      });
+
+      // Parallax effect for background text
+      gsap.to('.portfolio-bg-text', {
+        x: -1000,
+        ease: "none",
+        scrollTrigger: {
+          trigger: portfolioSection,
+          start: "top top",
+          end: () => `+=${getScrollWidth()}`,
+          scrub: true
+        }
+      });
+
       // Cinematic Mask Reveal for Horizontal Items
       gsap.utils.toArray('.gsap-mask-reveal-horizontal').forEach((mask: any) => {
         gsap.fromTo(mask, 
-          { clipPath: 'inset(100% 0% 0% 0%)' },
+          { clipPath: 'inset(0% 100% 0% 0%)' }, // Horizontal reveal
           {
             clipPath: 'inset(0% 0% 0% 0%)',
             duration: 1.5,
@@ -2519,7 +2588,7 @@ function App() {
             scrollTrigger: {
               trigger: mask,
               containerAnimation: horizontalScroll,
-              start: "left 90%",
+              start: "left 95%",
               toggleActions: "play none none reverse"
             }
           }
@@ -2878,7 +2947,7 @@ function App() {
                 <TechStack />
                 <Marquee />
                 <Services onOpenPopup={() => setShowPopup(true)} />
-                <Portfolio />
+                <Portfolio onNavigate={navigateTo} />
                 <Testimonials />
                 <FAQ />
                 <Featured />
