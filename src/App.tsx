@@ -20,7 +20,8 @@ import {
   Star,
   Play,
   ArrowLeft,
-  X
+  X,
+  Quote
 } from 'lucide-react';
 import { cn } from './lib/utils';
 const simuVideo = "/simu.mp4";
@@ -258,6 +259,45 @@ const TiltCard = ({ children, className }: { children: React.ReactNode; classNam
       <div style={{ transform: "translateZ(50px)" }}>
         {children}
       </div>
+    </motion.div>
+  );
+};
+
+const Parallax = ({ children, offset = 50 }: { children: React.ReactNode; offset?: number }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [-offset, offset]);
+
+  return (
+    <motion.div ref={ref} style={{ y }}>
+      {children}
+    </motion.div>
+  );
+};
+
+const FloatingElement = ({ children, className, speed = 1 }: { children?: React.ReactNode; className?: string; speed?: number }) => {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 5000], [0, -500 * speed]);
+
+  return (
+    <motion.div style={{ y }} className={cn("absolute pointer-events-none", className)}>
+      {children}
+    </motion.div>
+  );
+};
+
+const ScrollReveal: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
+    >
+      {children}
     </motion.div>
   );
 };
@@ -543,6 +583,10 @@ VideoBackground.displayName = 'VideoBackground';
 const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const { scrollY } = useScroll();
+
+  const heroY = useTransform(scrollY, [0, 500], [0, 150]);
+  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -566,35 +610,37 @@ const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
         <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[80px] rounded-full will-change-transform" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="flex items-center gap-4 mb-8">
-              <span className="w-12 h-[1px] bg-brand" />
-              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">
-                Premium Software House
-              </span>
-            </div>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-display leading-[0.85] tracking-tighter mb-10">
-              Transformamos <span className="italic font-normal">visão</span> em <span className="text-brand">autoridade</span> digital.
-            </h1>
-            <p className="text-muted text-lg md:text-xl max-w-xl mb-12 font-light leading-relaxed">
-              Design brutalista, performance extrema e estratégia de mercado. Não apenas sites, mas ativos digitais de alto valor.
-            </p>
-            <div className="flex flex-wrap gap-6">
-              <MagneticButton 
-                onClick={onOpenPopup}
-                className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500"
-              >
-                Iniciar Projeto
-              </MagneticButton>
-              <button className="px-12 py-6 border border-white/10 text-white font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors">
-                Ver Portfólio
-              </button>
-            </div>
+            <Parallax offset={30}>
+              <div className="flex items-center gap-4 mb-8">
+                <span className="w-12 h-[1px] bg-brand" />
+                <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">
+                  Premium Software House
+                </span>
+              </div>
+              <h1 className="text-6xl md:text-8xl lg:text-9xl font-display leading-[0.85] tracking-tighter mb-10">
+                Transformamos <span className="italic font-normal">visão</span> em <span className="text-brand">autoridade</span> digital.
+              </h1>
+              <p className="text-muted text-lg md:text-xl max-w-xl mb-12 font-light leading-relaxed">
+                Design brutalista, performance extrema e estratégia de mercado. Não apenas sites, mas ativos digitais de alto valor.
+              </p>
+              <div className="flex flex-wrap gap-6">
+                <MagneticButton 
+                  onClick={onOpenPopup}
+                  className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500"
+                >
+                  Iniciar Projeto
+                </MagneticButton>
+                <button className="px-12 py-6 border border-white/10 text-white font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors">
+                  Ver Portfólio
+                </button>
+              </div>
+            </Parallax>
           </motion.div>
 
         <motion.div
@@ -636,38 +682,66 @@ const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
             </div>
           </TiltCard>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 };
 
 const TechStack = () => {
   const techs = [
-    { name: "React 18", icon: Code2 },
-    { name: "TypeScript", icon: Terminal },
-    { name: "Tailwind CSS", icon: Layers },
-    { name: "Framer Motion", icon: Zap },
-    { name: "Node.js", icon: Cpu },
-    { name: "PostgreSQL", icon: Database },
-    { name: "Vite", icon: Rocket },
-    { name: "Firebase", icon: ShieldCheck }
+    { name: "React 18", icon: Code2, desc: "Interfaces reativas e performáticas" },
+    { name: "TypeScript", icon: Terminal, desc: "Tipagem estrita para código robusto" },
+    { name: "Tailwind CSS", icon: Layers, desc: "Estilização utilitária e escalável" },
+    { name: "Framer Motion", icon: Zap, desc: "Animações fluidas e interativas" },
+    { name: "Node.js", icon: Cpu, desc: "Backend escalável e de alta performance" },
+    { name: "PostgreSQL", icon: Database, desc: "Banco de dados relacional sólido" },
+    { name: "Vite", icon: Rocket, desc: "Build system ultra-rápido" },
+    { name: "Firebase", icon: ShieldCheck, desc: "Infraestrutura serverless segura" }
   ];
 
   return (
-    <div className="py-20 border-y border-white/5 bg-white/[0.01]">
+    <div className="py-32 border-y border-white/10 bg-surface relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-        <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-10 block text-center">Tecnologias de Ponta</span>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 mb-24">
+          <ScrollReveal>
+            <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+              Tech Stack / 002
+            </span>
+            <h2 className="text-5xl md:text-7xl font-display leading-[0.85] tracking-tighter">
+              Arquitetura <span className="italic font-normal">sólida</span> para produtos de <span className="text-brand">elite</span>.
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <p className="text-muted text-sm font-mono uppercase tracking-widest max-w-[250px] md:text-right">
+              [ Stack Moderna ]
+              [ Escalabilidade ]
+              [ Performance ]
+            </p>
+          </ScrollReveal>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-t border-l border-white/10">
           {techs.map((tech, idx) => (
             <motion.div 
               key={idx}
-              whileHover={{ y: -5 }}
-              className="flex flex-col items-center gap-3 group"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: idx * 0.05 }}
+              className="group p-10 border-r border-b border-white/10 hover:bg-brand/[0.02] transition-colors relative overflow-hidden"
             >
-              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-brand/50 transition-colors">
-                <tech.icon className="w-6 h-6 text-muted group-hover:text-brand transition-colors" />
+              <div className="absolute top-4 right-4 text-[8px] font-mono text-muted/30 group-hover:text-brand/40 transition-colors">
+                MOD_00{idx + 1}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted/60 group-hover:text-brand transition-colors">{tech.name}</span>
+              <div className="flex flex-col gap-6 relative z-10">
+                <div className="w-12 h-12 rounded-none border border-white/10 flex items-center justify-center group-hover:border-brand/50 group-hover:bg-brand/5 transition-all duration-500">
+                  <tech.icon className="w-6 h-6 text-muted group-hover:text-brand transition-colors" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-display font-bold mb-2 group-hover:text-brand transition-colors">{tech.name}</h3>
+                  <p className="text-xs text-muted leading-relaxed group-hover:text-white/70 transition-colors">{tech.desc}</p>
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-[1px] bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
             </motion.div>
           ))}
         </div>
@@ -698,40 +772,57 @@ const FAQ = () => {
   ];
 
   return (
-    <section className="py-32 px-6 max-w-4xl mx-auto">
-      <div className="text-center mb-20">
-        <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">Dúvidas Frequentes</span>
-        <h2 className="text-4xl md:text-5xl font-display font-bold leading-tight">
-          Transparência em <span className="text-brand italic">cada etapa</span> do processo.
-        </h2>
-      </div>
-
-      <div className="space-y-4">
-        {faqs.map((faq, idx) => (
-          <div key={idx} className="border border-white/5 rounded-2xl overflow-hidden bg-white/[0.02]">
-            <button 
-              onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-              className="w-full p-6 text-left flex justify-between items-center hover:bg-white/5 transition-colors"
-            >
-              <span className="font-bold text-lg">{faq.q}</span>
-              <motion.div animate={{ rotate: openIndex === idx ? 45 : 0 }}>
-                <Zap className={cn("w-5 h-5", openIndex === idx ? "text-brand" : "text-muted")} />
-              </motion.div>
-            </button>
-            <AnimatePresence>
-              {openIndex === idx && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="px-6 pb-6 text-muted leading-relaxed"
-                >
-                  {faq.a}
-                </motion.div>
-              )}
-            </AnimatePresence>
+    <section className="py-32 px-6 max-w-7xl mx-auto border-t border-white/10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+        <ScrollReveal>
+          <div className="lg:sticky lg:top-32">
+            <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+              FAQ / 004
+            </span>
+            <h2 className="text-5xl md:text-7xl font-display leading-[0.85] tracking-tighter mb-10">
+              Transparência em <span className="italic font-normal text-brand">cada etapa</span> do processo.
+            </h2>
+            <p className="text-muted text-lg font-light leading-relaxed max-w-md">
+              Dúvidas comuns sobre como elevamos o patamar digital do seu negócio.
+            </p>
           </div>
-        ))}
+        </ScrollReveal>
+
+        <div className="divide-y divide-white/10 border-t border-white/10">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="group">
+              <button 
+                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                className="w-full py-10 text-left flex justify-between items-start gap-8"
+              >
+                <div className="flex gap-6">
+                  <span className="text-brand font-mono text-xs pt-1">0{idx + 1}</span>
+                  <span className="font-display font-bold text-2xl md:text-3xl tracking-tight group-hover:text-brand transition-colors">{faq.q}</span>
+                </div>
+                <motion.div 
+                  animate={{ rotate: openIndex === idx ? 45 : 0 }}
+                  className="pt-2"
+                >
+                  <Zap className={cn("w-6 h-6 transition-colors", openIndex === idx ? "text-brand" : "text-muted/30")} />
+                </motion.div>
+              </button>
+              <AnimatePresence>
+                {openIndex === idx && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-12 pb-10 text-muted text-lg font-light leading-relaxed max-w-2xl">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -764,69 +855,111 @@ const Services = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const services = [
     {
       number: "01",
-      title: "Sites institucionais de alto impacto",
-      description: "Páginas que posicionam sua marca, valorizam seu serviço e guiam o usuário até a ação certa com clareza visual.",
-      icon: Globe
+      title: "Sites de Alto Impacto",
+      description: "Páginas que posicionam sua marca, valorizam seu serviço e guiam o usuário até a ação certa com clareza visual e narrativa editorial.",
+      icon: Globe,
+      tags: ["UX/UI", "Performance", "SEO"]
     },
     {
       number: "02",
-      title: "SaaS e plataformas digitais",
-      description: "Produto com estrutura escalável, interface clara e experiência de uso que equilibra negócio, tecnologia e design.",
-      icon: Cpu
+      title: "SaaS & Plataformas",
+      description: "Produtos com estrutura escalável, interface clara e experiência de uso que equilibra negócio e tecnologia.",
+      icon: Cpu,
+      tags: ["React", "Node.js", "Scalability"]
     },
     {
       number: "03",
-      title: "Sistemas sob demanda",
-      description: "Soluções para operações internas, automações, dashboards e fluxos que economizam tempo e aumentam controle.",
-      icon: Database
+      title: "Sistemas Sob Demanda",
+      description: "Soluções para operações internas, automações e dashboards que economizam tempo.",
+      icon: Database,
+      tags: ["Automation", "Dashboards", "Internal Tools"]
     },
     {
       number: "04",
-      title: "Identidade digital com movimento",
-      description: "Microinterações, camadas visuais, efeitos 3D e ritmo de navegação pensados para manter a atenção do usuário.",
-      icon: Zap
+      title: "Identidade & Motion",
+      description: "Microinterações, camadas visuais e ritmo de navegação pensados para manter a atenção.",
+      icon: Zap,
+      tags: ["Motion", "Branding", "3D Effects"]
     }
   ];
 
   return (
-    <section id="servicos" className="py-32 px-6 max-w-7xl mx-auto">
-      <div className="max-w-3xl mb-20">
-        <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">O que eu desenvolvo</span>
-        <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-6">
-          Não é só “um site bonito”. É presença digital com <span className="text-brand italic">intenção</span>.
-        </h2>
-        <MagneticButton 
-          onClick={onOpenPopup}
-          className="px-8 py-4 bg-brand text-surface rounded-full font-bold text-sm hover:shadow-[0_0_30px_rgba(214,124,82,0.3)] transition-all"
-        >
-          Solicitar Análise Grátis
-        </MagneticButton>
+    <section id="servicos" className="py-32 border-t border-white/10 bg-surface relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12">
+          <div className="max-w-3xl">
+            <ScrollReveal>
+              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+                Capabilities / 001
+              </span>
+              <h2 className="text-6xl md:text-9xl font-display leading-[0.85] tracking-tighter">
+                O que <span className="italic font-normal">dominamos</span> para elevar sua marca.
+              </h2>
+            </ScrollReveal>
+          </div>
+          <ScrollReveal delay={0.2}>
+            <div className="flex flex-col items-start md:items-end gap-8">
+              <p className="text-muted text-sm font-mono uppercase tracking-widest max-w-[200px] md:text-right">
+                [ 4 Especialidades ]
+                [ Design Brutalista ]
+                [ Performance Extrema ]
+              </p>
+              <MagneticButton 
+                onClick={onOpenPopup}
+                className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500"
+              >
+                Consultoria
+              </MagneticButton>
+            </div>
+          </ScrollReveal>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="border-t border-white/10">
         {services.map((service, idx) => (
           <motion.div
             key={idx}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             transition={{ delay: idx * 0.1 }}
+            className="group relative border-b border-white/10 py-20 hover:bg-brand/[0.02] transition-all duration-700 cursor-default px-6"
           >
-            <SpotlightCard className="h-full group flex flex-col justify-between">
-              <div>
-                <span className="text-4xl font-display font-black text-white/5 mb-6 block group-hover:text-brand/20 transition-colors">{service.number}</span>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center">
-                    <service.icon className="w-6 h-6 text-brand" />
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-1">
+                <span className="text-brand font-mono text-4xl font-bold opacity-20 group-hover:opacity-100 transition-opacity duration-500">
+                  {service.number}
+                </span>
+              </div>
+              <div className="lg:col-span-5">
+                <div className="flex items-center gap-6">
+                  <div className="w-12 h-12 rounded-none border border-brand/30 flex items-center justify-center group-hover:bg-brand group-hover:border-brand transition-all duration-500">
+                    <service.icon className="w-6 h-6 text-brand group-hover:text-surface transition-colors" />
                   </div>
-                  <h3 className="text-2xl font-bold">{service.title}</h3>
+                  <h3 className="text-4xl md:text-6xl font-display font-bold tracking-tight group-hover:translate-x-4 transition-transform duration-700">
+                    {service.title}
+                  </h3>
                 </div>
-                <p className="text-muted leading-relaxed mb-8">{service.description}</p>
               </div>
-              <div className="flex items-center gap-2 text-brand text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                Saber mais <ArrowUpRight className="w-3 h-3" />
+              <div className="lg:col-span-4">
+                <p className="text-muted text-lg font-light leading-relaxed group-hover:text-white transition-colors duration-500">
+                  {service.description}
+                </p>
               </div>
-            </SpotlightCard>
+              <div className="lg:col-span-2 flex justify-end">
+                <div className="flex flex-wrap gap-2 justify-end">
+                  {service.tags.map(tag => (
+                    <span key={tag} className="px-3 py-1 border border-white/10 text-[9px] font-mono uppercase tracking-widest group-hover:border-brand/30 transition-colors">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Animated Background Line */}
+            <motion.div 
+              className="absolute bottom-0 left-0 h-[2px] bg-brand w-0 group-hover:w-full transition-all duration-1000 ease-out"
+            />
           </motion.div>
         ))}
       </div>
@@ -837,58 +970,85 @@ const Services = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
 const Process = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const steps = [
     {
-      title: "Imersão",
-      description: "Entendemos profundamente seu negócio, objetivos e dores para traçar a melhor estratégia técnica.",
-      number: "01"
+      title: "Imersão Estratégica",
+      description: "Entendemos profundamente seu negócio, objetivos e dores para traçar a melhor estratégia técnica e visual.",
+      number: "01",
+      tags: ["Discovery", "Market Analysis", "UX Strategy"]
     },
     {
-      title: "Direção visual",
-      description: "Defino atmosfera, tipografia, paleta, hierarquia e comportamento da interface.",
-      number: "02"
+      title: "Direção de Arte & UX",
+      description: "Defino atmosfera, tipografia, paleta, hierarquia e comportamento da interface para criar uma linguagem única.",
+      number: "02",
+      tags: ["Visual Identity", "Prototyping", "Motion Design"]
     },
     {
-      title: "Construção",
-      description: "Codificação ágil com entregas incrementais, garantindo transparência e qualidade em cada sprint.",
-      number: "03"
+      title: "Construção & Engenharia",
+      description: "Codificação ágil com entregas incrementais, garantindo transparência e qualidade em cada sprint de desenvolvimento.",
+      number: "03",
+      tags: ["React/Next.js", "Clean Code", "Performance"]
     },
     {
-      title: "Refino",
-      description: "Ajusto interações, narrativa visual e detalhes que elevam a percepção de qualidade.",
-      number: "04"
+      title: "Refino & Lançamento",
+      description: "Ajusto interações, narrativa visual e detalhes que elevam a percepção de qualidade antes do deploy final.",
+      number: "04",
+      tags: ["QA Testing", "SEO Optimization", "Final Polish"]
     }
   ];
 
   return (
-    <section id="processo" className="py-32 px-6 max-w-7xl mx-auto border-t border-white/5">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-start">
-        <div className="lg:sticky lg:top-32">
-          <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">Como eu trabalho</span>
-          <h2 className="text-4xl md:text-5xl font-display font-bold leading-tight mb-8">
-            Da ideia ao produto com um processo <span className="text-brand italic">enxuto</span> e orientado a resultado.
-          </h2>
-          <MagneticButton 
-            onClick={onOpenPopup}
-            className="px-8 py-4 bg-brand text-surface rounded-full font-bold text-sm hover:shadow-[0_0_30px_rgba(214,124,82,0.3)] transition-all"
-          >
-            Solicitar Análise Grátis
-          </MagneticButton>
-        </div>
+    <section id="processo" className="py-32 border-t border-white/10 relative overflow-hidden">
+      <FloatingElement speed={0.1} className="top-0 right-0 w-[500px] h-[500px] bg-brand/5 blur-[120px] rounded-full" />
+      
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start relative z-10">
+          <div className="lg:col-span-5 lg:sticky lg:top-32">
+            <ScrollReveal>
+              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+                Methodology / 003
+              </span>
+              <h2 className="text-6xl md:text-8xl font-display leading-[0.85] tracking-tighter mb-10">
+                Da ideia ao produto com um processo <span className="text-brand italic">enxuto</span> e orientado a resultado.
+              </h2>
+              <p className="text-muted text-lg font-light leading-relaxed mb-12 max-w-md">
+                Eliminamos o excesso para focar no que realmente gera valor e autoridade para sua marca no ambiente digital.
+              </p>
+              <MagneticButton 
+                onClick={onOpenPopup}
+                className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500"
+              >
+                Solicitar Análise Grátis
+              </MagneticButton>
+            </ScrollReveal>
+          </div>
 
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {steps.map((step, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="p-8 rounded-3xl bg-white/5 border border-white/5 hover:border-brand/30 transition-colors group"
-            >
-              <div className="text-5xl font-display font-black text-brand/10 mb-6 group-hover:text-brand/20 transition-colors">{step.number}</div>
-              <h3 className="text-xl font-bold mb-4">{step.title}</h3>
-              <p className="text-muted text-sm leading-relaxed">{step.description}</p>
-            </motion.div>
-          ))}
+          <div className="lg:col-span-7 space-y-0 border-l border-white/10">
+            {steps.map((step, idx) => (
+              <ScrollReveal key={idx} delay={idx * 0.1}>
+                <div className="group relative pl-12 py-16 border-b border-white/10 hover:bg-brand/[0.02] transition-colors">
+                  {/* Vertical Rail Dot */}
+                  <div className="absolute top-1/2 -left-[5px] -translate-y-1/2 w-[9px] h-[9px] bg-surface border border-white/30 group-hover:bg-brand group-hover:border-brand transition-all duration-500" />
+                  
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
+                    <div className="max-w-md">
+                      <span className="text-brand font-mono text-xs mb-4 block">Step {step.number}</span>
+                      <h3 className="text-3xl md:text-4xl font-display font-bold mb-6 group-hover:translate-x-2 transition-transform duration-500">{step.title}</h3>
+                      <p className="text-muted text-lg font-light leading-relaxed mb-8 group-hover:text-white transition-colors">{step.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {step.tags.map(tag => (
+                          <span key={tag} className="px-3 py-1 border border-white/10 text-[9px] font-mono uppercase tracking-widest group-hover:border-brand/30 transition-colors">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-8xl font-display font-black text-white/[0.02] group-hover:text-brand/[0.05] transition-colors duration-700 leading-none select-none">
+                      {step.number}
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -899,87 +1059,273 @@ const Portfolio = () => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const projects = [
     {
-      title: "BarberFlow SaaS",
-      category: "SaaS de Gestão",
-      description: "Ecossistema completo para barbearias premium: agendamento inteligente, gestão de estoque e dashboard de faturamento em tempo real.",
+      title: "Lumina Landing",
+      category: "Site Institucional Premium",
+      description: "Landing page de alta conversão para consultoria financeira, com animações fluidas, tipografia editorial e performance nota 100.",
       color: "from-brand/20 to-brand-soft/20",
       featured: true,
+      type: "landing",
+      badge: "Performance",
+      colSpan: "lg:col-span-2"
+    },
+    {
+      title: "Kytrona Dashboard",
+      category: "Plataforma SaaS",
+      description: "Sistema de gestão empresarial com foco em dados em tempo real e automação de processos.",
+      color: "from-brand/10 to-brand-soft/10",
+      featured: true,
       type: "dashboard",
-      badge: "Case de Sucesso"
+      badge: "SaaS",
+      colSpan: "lg:col-span-2 lg:row-span-2"
     },
     {
-      title: "Aura Luxury",
-      category: "E-commerce Premium",
-      description: "Experiência de compra imersiva para marcas de alto padrão, com foco em performance e narrativa visual cinematográfica.",
-      color: "from-olive/20 to-brand/10",
+      title: "EcoTrack Mobile",
+      category: "Aplicativo Mobile",
+      description: "Interface intuitiva para monitoramento de impacto ambiental e créditos de carbono.",
+      color: "from-emerald-500/10 to-brand/10",
       featured: false,
-      type: "gallery",
-      badge: "Conceito"
+      type: "dashboard",
+      badge: "Mobile",
+      colSpan: "lg:col-span-1 lg:row-span-1"
     },
     {
-      title: "Nexus Analytics",
-      category: "Dashboard de Dados",
-      description: "Visualização de dados complexos simplificada para tomada de decisão estratégica em tempo real.",
-      color: "from-blue-500/10 to-brand/10",
+      title: "Nova Commerce",
+      category: "E-commerce Headless",
+      description: "Loja virtual ultra-rápida com foco em experiência de compra imersiva e checkout otimizado.",
+      color: "from-brand/20 to-brand-soft/20",
+      featured: false,
+      type: "landing",
+      badge: "E-commerce",
+      colSpan: "lg:col-span-1 lg:row-span-1"
+    },
+    {
+      title: "Zenith Portal",
+      category: "Área de Membros",
+      description: "Plataforma exclusiva para cursos e mentorias com sistema de gamificação integrado.",
+      color: "from-brand/20 to-brand-soft/20",
       featured: false,
       type: "analytics",
-      badge: "Conceito"
+      badge: "LXP",
+      colSpan: "lg:col-span-2 lg:row-span-1"
     }
   ];
 
   const renderBrowserContent = (type: string) => {
     switch (type) {
-      case 'dashboard':
+      case 'landing':
         return (
-          <div className="flex-1 p-4 flex flex-col gap-3">
-            <div className="flex justify-between items-center mb-2">
-              <div className="h-3 w-20 bg-brand/30 rounded" />
-              <div className="h-3 w-12 bg-white/10 rounded" />
+          <div className="flex-1 p-0 flex flex-col overflow-hidden bg-surface">
+            <div className="h-10 border-b border-white/5 flex items-center justify-between px-4 bg-white/[0.02]">
+              <div className="flex gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-brand" />
+                <div className="w-16 h-1.5 bg-white/10 rounded-full" />
+              </div>
+              <div className="flex gap-4">
+                <div className="w-10 h-1 bg-white/10 rounded-full" />
+                <div className="w-10 h-1 bg-white/10 rounded-full" />
+                <div className="w-10 h-1 bg-white/10 rounded-full" />
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-12 bg-white/5 rounded-lg border border-white/5 flex flex-col p-2 gap-1">
-                  <div className="h-1 w-full bg-white/10 rounded" />
-                  <div className="h-2 w-1/2 bg-brand/20 rounded" />
-                </div>
-              ))}
-            </div>
-            <div className="flex-1 bg-white/5 rounded-lg border border-white/5 p-3 flex flex-col gap-2">
-              <div className="h-2 w-full bg-white/10 rounded" />
-              <div className="h-2 w-full bg-white/10 rounded" />
-              <div className="h-2 w-2/3 bg-white/10 rounded" />
+            <div className="flex-1 p-8 flex flex-col gap-6">
+              <div className="space-y-3">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  whileInView={{ width: "80%" }}
+                  className="h-6 bg-gradient-to-r from-brand/20 to-transparent rounded-lg" 
+                />
+                <motion.div 
+                  initial={{ width: 0 }}
+                  whileInView={{ width: "60%" }}
+                  transition={{ delay: 0.1 }}
+                  className="h-6 bg-gradient-to-r from-brand/10 to-transparent rounded-lg" 
+                />
+              </div>
+              <div className="h-40 w-full bg-brand/5 rounded-3xl border border-brand/10 flex items-center justify-center relative overflow-hidden group/hero">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(214,124,82,0.1)_0%,transparent_70%)]" />
+                <Zap className="w-12 h-12 text-brand/40 relative z-10" />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-24 bg-white/[0.02] rounded-2xl border border-white/5 p-4 flex flex-col justify-between">
+                    <div className="w-8 h-8 rounded-lg bg-brand/10" />
+                    <div className="h-1.5 w-full bg-white/10 rounded-full" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         );
-      case 'gallery':
+      case 'dashboard':
         return (
-          <div className="flex-1 p-4 grid grid-cols-2 gap-3">
-            <div className="col-span-2 h-12 bg-white/10 rounded-xl" />
-            <div className="aspect-square bg-white/5 rounded-xl border border-white/5" />
-            <div className="aspect-square bg-white/5 rounded-xl border border-white/5" />
-            <div className="col-span-2 h-4 bg-white/5 rounded" />
+          <div className="flex-1 p-0 flex overflow-hidden bg-surface">
+            <div className="w-16 border-r border-white/5 bg-white/[0.02] flex flex-col items-center py-6 gap-6">
+              <div className="w-8 h-8 rounded-xl bg-brand/20 flex items-center justify-center">
+                <div className="w-4 h-4 rounded bg-brand" />
+              </div>
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                  <div className="w-3 h-3 rounded-sm bg-white/10" />
+                </div>
+              ))}
+            </div>
+            <div className="flex-1 p-8 flex flex-col gap-8">
+              <div className="flex justify-between items-center">
+                <div className="space-y-1">
+                  <div className="h-4 w-32 bg-white/10 rounded-full" />
+                  <div className="h-2 w-20 bg-white/5 rounded-full" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10" />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: "Vendas", val: "R$ 42k", color: "brand" },
+                  { label: "Clientes", val: "1.2k", color: "white" },
+                  { label: "Taxa", val: "89%", color: "white" }
+                ].map((stat, i) => (
+                  <div key={i} className="h-24 bg-white/[0.02] rounded-2xl border border-white/5 p-5 flex flex-col justify-between group/stat">
+                    <span className="text-[8px] font-mono uppercase tracking-widest text-muted">{stat.label}</span>
+                    <span className={cn("text-xl font-display font-bold", stat.color === 'brand' ? "text-brand" : "text-white")}>{stat.val}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex-1 bg-white/[0.02] rounded-3xl border border-white/5 p-6 relative overflow-hidden">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="h-3 w-24 bg-white/10 rounded-full" />
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 rounded-full bg-brand" />
+                    <div className="w-2 h-2 rounded-full bg-white/10" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-lg bg-white/5" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-2 w-full bg-white/10 rounded-full" />
+                        <div className="h-1.5 w-2/3 bg-white/5 rounded-full" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         );
       case 'analytics':
         return (
-          <div className="flex-1 p-4 flex flex-col gap-4">
-            <div className="flex gap-2">
-              <div className="w-8 h-8 rounded-full bg-brand/20" />
-              <div className="flex-1 flex flex-col gap-2 justify-center">
-                <div className="h-2 w-1/2 bg-white/10 rounded" />
-                <div className="h-1 w-1/4 bg-white/5 rounded" />
+          <div className="flex-1 p-8 flex flex-col gap-8 bg-surface">
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3 items-center">
+                <div className="w-10 h-10 rounded-2xl bg-brand/20 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-brand" />
+                </div>
+                <div className="space-y-1">
+                  <div className="h-3 w-24 bg-white/10 rounded-full" />
+                  <div className="h-2 w-16 bg-white/5 rounded-full" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div className="px-3 py-1 bg-white/5 rounded-full border border-white/10 text-[8px] font-mono text-muted uppercase tracking-widest">Live</div>
               </div>
             </div>
-            <div className="flex-1 flex items-end gap-1 px-2 pb-2">
-              {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+            <div className="grid grid-cols-4 gap-3">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-12 bg-white/[0.02] rounded-xl border border-white/5" />
+              ))}
+            </div>
+            <div className="flex-1 flex items-end gap-2 px-4 pb-4 border-b border-white/5 relative">
+              <div className="absolute inset-0 flex flex-col justify-between py-4 pointer-events-none opacity-10">
+                {[1, 2, 3, 4].map(i => <div key={i} className="h-[1px] w-full bg-white" />)}
+              </div>
+              {[35, 65, 45, 85, 55, 95, 75, 45, 65, 90, 60, 80].map((h, i) => (
                 <motion.div 
                   key={i}
                   initial={{ height: 0 }}
                   whileInView={{ height: `${h}%` }}
-                  className="flex-1 bg-brand/30 rounded-t-sm" 
-                />
+                  transition={{ delay: i * 0.05, type: "spring", stiffness: 100 }}
+                  className="flex-1 bg-gradient-to-t from-brand/40 to-brand rounded-t-lg relative group/bar" 
+                >
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-brand text-surface text-[8px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity">
+                    {h}%
+                  </div>
+                </motion.div>
               ))}
             </div>
+            <div className="flex justify-between px-2">
+              {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'].map(m => (
+                <span key={m} className="text-[8px] font-mono text-muted uppercase tracking-widest">{m}</span>
+              ))}
+            </div>
+          </div>
+        );
+      case 'motion':
+        return (
+          <div className="flex-1 p-0 flex flex-col items-center justify-center overflow-hidden relative bg-surface">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(214,124,82,0.05)_0%,transparent_70%)]" />
+            
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 180, 360],
+              }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute w-[300px] h-[300px] border border-brand/10 rounded-full"
+            />
+            
+            <motion.div 
+              animate={{ 
+                scale: [1.1, 1, 1.1],
+                rotate: [360, 180, 0],
+              }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute w-[200px] h-[200px] border border-brand/5 rounded-full"
+            />
+
+            <div className="z-10 flex flex-col items-center gap-8">
+              <div className="flex gap-4">
+                {[1, 2, 3].map(i => (
+                  <motion.div 
+                    key={i}
+                    animate={{ 
+                      y: [0, -20, 0],
+                      borderColor: ["rgba(214,124,82,0.2)", "rgba(214,124,82,1)", "rgba(214,124,82,0.2)"]
+                    }}
+                    transition={{ duration: 3, delay: i * 0.3, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-16 h-16 rounded-2xl border-2 flex items-center justify-center bg-surface/50 backdrop-blur-xl"
+                  >
+                    <div className={cn("w-6 h-6 rounded-full", i === 1 ? "bg-brand" : "bg-white/10")} />
+                  </motion.div>
+                ))}
+              </div>
+              
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-1 w-48 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div 
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-1/2 h-full bg-gradient-to-r from-transparent via-brand to-transparent"
+                  />
+                </div>
+                <span className="text-[8px] font-mono text-brand uppercase tracking-[0.5em] animate-pulse">Processing Experience</span>
+              </div>
+            </div>
+
+            {/* Floating Particles */}
+            {[1, 2, 3, 4, 5].map(i => (
+              <motion.div
+                key={i}
+                animate={{ 
+                  x: [Math.random() * 100, Math.random() * -100],
+                  y: [Math.random() * 100, Math.random() * -100],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{ duration: 5 + Math.random() * 5, repeat: Infinity, ease: "linear" }}
+                className="absolute w-1 h-1 bg-brand rounded-full"
+                style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+              />
+            ))}
           </div>
         );
       default:
@@ -988,65 +1334,71 @@ const Portfolio = () => {
   };
 
   return (
-    <section id="portfolio" className="py-32 px-6 max-w-7xl mx-auto">
-      <div className="text-center mb-20">
-        <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">Portfólio conceitual</span>
-        <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-6">
-          Projetos pensados para mostrar <span className="text-brand italic">amplitude técnica</span> e força de apresentação.
-        </h2>
+    <section id="portfolio" className="py-32 px-6 max-w-7xl mx-auto relative overflow-hidden">
+      <FloatingElement speed={0.15} className="top-1/4 -left-20 w-[600px] h-[600px] bg-brand/5 blur-[150px] rounded-full" />
+      <FloatingElement speed={0.25} className="bottom-1/4 -right-20 w-[400px] h-[400px] bg-brand/10 blur-[100px] rounded-full" />
+
+      <div className="text-center mb-20 relative z-10">
+        <ScrollReveal>
+          <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">Portfólio de Soluções</span>
+          <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-6">
+            Previa real do que <span className="text-brand italic">podemos construir</span> para o seu negócio.
+          </h2>
+        </ScrollReveal>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-white/10 relative z-10">
         {projects.map((project, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: idx * 0.1 }}
-            className={cn(
-              "group relative rounded-[2.5rem] border border-white/10 bg-white/5 overflow-hidden flex flex-col",
-              project.featured ? "md:col-span-2 lg:col-span-2" : ""
-            )}
-          >
-            <div className={cn("aspect-video w-full bg-gradient-to-br relative overflow-hidden p-8", project.color)}>
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-              
-              {/* Browser Frame Simulation */}
-              <motion.div 
-                whileHover={{ y: -10 }}
-                className="w-full h-full bg-surface/40 backdrop-blur-md rounded-xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
-              >
-                <div className="h-6 bg-white/5 border-bottom border-white/10 flex items-center px-3 gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-500/50" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/50" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
-                  <div className="ml-2 h-2 w-24 bg-white/10 rounded-full" />
+          <ScrollReveal key={idx} delay={idx * 0.1} className={cn(project.colSpan)}>
+            <div
+              className={cn(
+                "group relative border-white/10 overflow-hidden flex flex-col transition-all duration-500 h-full",
+                idx % 3 !== 2 ? "lg:border-r" : "",
+                idx < projects.length - 1 ? "border-b" : "md:border-b-0"
+              )}
+            >
+              <div className={cn("aspect-video w-full bg-gradient-to-br relative overflow-hidden p-12", project.color)}>
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+                
+                {/* Technical Label */}
+                <div className="absolute top-4 left-4 flex gap-4 opacity-40">
+                  <span className="text-[8px] font-mono text-white uppercase tracking-widest">Project / 00{idx + 1}</span>
+                  <span className="text-[8px] font-mono text-white uppercase tracking-widest">{project.badge}</span>
                 </div>
-                {renderBrowserContent(project.type)}
-              </motion.div>
-            </div>
-            <div className="p-8 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-3">
-                  <span className="text-brand text-[10px] uppercase tracking-widest font-bold">{project.category}</span>
-                  {project.badge && (
-                    <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[8px] font-bold uppercase tracking-widest text-muted">
-                      {project.badge}
-                    </span>
-                  )}
-                </div>
-                <h3 className="text-2xl font-bold mb-4">{project.title}</h3>
-                <p className="text-muted text-sm leading-relaxed mb-8">{project.description}</p>
+
+                {/* Browser Frame Simulation */}
+                <motion.div 
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  className="w-full h-full bg-surface/40 backdrop-blur-md rounded-none border border-white/10 shadow-2xl overflow-hidden flex flex-col"
+                >
+                  <div className="h-6 bg-white/5 border-b border-white/10 flex items-center px-3 gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                  </div>
+                  {renderBrowserContent(project.type)}
+                </motion.div>
               </div>
-              <MagneticButton 
-                onClick={() => setSelectedProject(project)}
-                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:text-brand transition-colors"
-              >
-                {project.featured ? "Solicitar Demo" : "Ver Detalhes"} <ArrowUpRight className="w-4 h-4" />
-              </MagneticButton>
+              <div className="p-12 flex-1 flex flex-col justify-between bg-surface group-hover:bg-brand/[0.02] transition-colors duration-500">
+                <div>
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">{project.category}</span>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-display tracking-tight mb-6 group-hover:translate-x-2 transition-transform duration-500">{project.title}</h3>
+                  <p className="text-muted text-lg font-light leading-relaxed mb-10 max-w-xl">{project.description}</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <MagneticButton 
+                    onClick={() => setSelectedProject(project)}
+                    className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.3em] text-white hover:text-brand transition-colors"
+                  >
+                    Explorar Case <ArrowUpRight className="w-4 h-4" />
+                  </MagneticButton>
+                  <div className="w-10 h-[1px] bg-white/10" />
+                </div>
+              </div>
             </div>
-          </motion.div>
+          </ScrollReveal>
         ))}
       </div>
 
@@ -1122,49 +1474,79 @@ const Testimonials = () => {
     {
       quote: "A Kytrona conseguiu traduzir o que a gente queria passar sem cair no visual comum de tecnologia. O projeto ficou elegante, rápido e com muita presença.",
       author: "Marina Costa",
-      role: "Direção de Marca"
+      role: "Direção de Marca",
+      company: "Lumina Studio"
     },
     {
-      quote: "O resultado teve impacto real na forma como nossos clientes perceberam o negócio. Não foi só um site, foi reposicionamento.",
+      quote: "O resultado teve impacto real na forma como nossos clientes perceberam o negócio. Não foi só um site, foi reposicionamento estratégico.",
       author: "Lucas Almeida",
-      role: "Founder de plataforma digital"
+      role: "Founder",
+      company: "Nexus Digital"
     },
     {
-      quote: "Processo objetivo, comunicação clara e um nível de cuidado visual que realmente diferencia. A entrega parece produto de empresa grande.",
+      quote: "Processo objetivo, comunicação clara e um nível de cuidado visual que realmente diferencia. A entrega parece produto de empresa global.",
       author: "Renata Siqueira",
-      role: "Operações e crescimento"
+      role: "COO",
+      company: "EcoTrack"
     }
   ];
 
-  return (
-    <section id="depoimentos" className="py-32 px-6 max-w-7xl mx-auto border-t border-white/5">
-      <div className="text-center mb-20">
-        <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">Depoimentos</span>
-        <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight">
-          Confiança se constrói quando <span className="text-brand italic">estética, clareza e execução</span> andam juntas.
-        </h2>
-      </div>
+  const [activeIndex, setActiveIndex] = useState(0);
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {testimonials.map((t, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: idx * 0.1 }}
-            className="p-8 rounded-3xl bg-white/5 border border-white/5 flex flex-col justify-between"
-          >
-            <div>
-              <Star className="w-6 h-6 text-brand mb-6 fill-brand/20" />
-              <p className="text-lg leading-relaxed mb-8 italic text-ink/90">"{t.quote}"</p>
-            </div>
-            <div>
-              <strong className="block font-display text-lg">{t.author}</strong>
-              <span className="text-xs text-muted uppercase tracking-widest">{t.role}</span>
-            </div>
-          </motion.div>
-        ))}
+  return (
+    <section id="depoimentos" className="py-32 border-t border-white/10 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
+          <div className="lg:col-span-5">
+            <ScrollReveal>
+              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+                Testimonials / 005
+              </span>
+              <h2 className="text-6xl md:text-8xl font-display leading-[0.85] tracking-tighter mb-10">
+                O que dizem sobre nossa <span className="italic font-normal text-brand">entrega</span>.
+              </h2>
+              <div className="flex gap-4">
+                {testimonials.map((_, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => setActiveIndex(idx)}
+                    className={cn(
+                      "w-12 h-1 transition-all duration-500",
+                      activeIndex === idx ? "bg-brand" : "bg-white/10"
+                    )}
+                  />
+                ))}
+              </div>
+            </ScrollReveal>
+          </div>
+
+          <div className="lg:col-span-7 relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeIndex}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className="relative"
+              >
+                <Quote className="absolute -top-12 -left-12 w-24 h-24 text-brand/5" />
+                <p className="text-3xl md:text-5xl font-display font-light leading-tight mb-12 italic text-white/90">
+                  "{testimonials[activeIndex].quote}"
+                </p>
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-[1px] bg-brand" />
+                  <div>
+                    <h4 className="text-xl font-bold text-white">{testimonials[activeIndex].author}</h4>
+                    <p className="text-xs text-muted uppercase tracking-widest">
+                      {testimonials[activeIndex].role} @ {testimonials[activeIndex].company}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -1172,45 +1554,63 @@ const Testimonials = () => {
 
 const Featured = () => {
   return (
-    <section className="py-32 px-6 max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">Destaque visual</span>
-          <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-8">
-            Uma composição que mistura <span className="text-brand italic">editorial</span>, interface e profundidade.
-          </h2>
-          <p className="text-muted leading-relaxed text-lg mb-10">
-            A proposta aqui foge do clichê neon e da estética “tech genérica”. A linguagem visual usa tons minerais, cobre queimado, contrastes suaves e superfícies translúcidas para parecer sofisticada sem ficar fria.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <span className="text-brand text-[10px] font-bold uppercase tracking-widest mb-2 block">Estratégia</span>
-              <h4 className="font-bold">Seu serviço explicado com mais valor percebido</h4>
-            </div>
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <span className="text-brand text-[10px] font-bold uppercase tracking-widest mb-2 block">Tecnologia</span>
-              <h4 className="font-bold">Base pronta para evoluir para stack moderna</h4>
-            </div>
+    <section className="py-32 border-t border-white/10 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
+          <div className="lg:col-span-7 order-2 lg:order-1">
+            <ScrollReveal>
+              <div className="relative aspect-[16/10] group overflow-hidden">
+                <div className="absolute inset-0 bg-brand/20 mix-blend-overlay z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <img 
+                  src="https://picsum.photos/seed/kytrona-featured/1200/800" 
+                  alt="Featured Composition" 
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100"
+                  referrerPolicy="no-referrer"
+                />
+                {/* Technical Overlay */}
+                <div className="absolute bottom-8 left-8 z-20 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
+                  <span className="text-[10px] font-mono text-brand uppercase tracking-widest bg-surface/80 backdrop-blur-md px-3 py-1 self-start">Visual Direction / 001</span>
+                  <span className="text-[10px] font-mono text-white uppercase tracking-widest bg-surface/80 backdrop-blur-md px-3 py-1 self-start">Mineral Palette</span>
+                </div>
+              </div>
+            </ScrollReveal>
           </div>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="relative aspect-square rounded-[3rem] bg-gradient-to-br from-brand/20 to-olive/20 border border-white/10 overflow-hidden flex items-center justify-center p-12"
-        >
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '30px 30px' }} />
-          <SpotlightCard className="w-full h-full flex flex-col justify-center items-center text-center">
-            <span className="text-brand text-[10px] font-bold uppercase tracking-widest mb-4 block">Experiência</span>
-            <h3 className="text-3xl font-display font-bold mb-6">Interatividade que convida a explorar</h3>
-            <p className="text-muted text-sm max-w-xs">Elementos respondem ao movimento do mouse, surgem com ritmo e criam uma sensação tátil mesmo em uma página leve.</p>
-          </SpotlightCard>
-        </motion.div>
+          <div className="lg:col-span-5 order-1 lg:order-2">
+            <ScrollReveal delay={0.2}>
+              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+                Visual Identity / 006
+              </span>
+              <h2 className="text-5xl md:text-7xl font-display leading-[0.85] tracking-tighter mb-10">
+                Uma composição que mistura <span className="italic font-normal text-brand">editorial</span> e interface.
+              </h2>
+              <p className="text-muted text-lg font-light leading-relaxed mb-12">
+                A proposta aqui foge do clichê neon e da estética “tech genérica”. A linguagem visual usa tons minerais, contrastes suaves e superfícies translúcidas para parecer sofisticada sem ficar fria.
+              </p>
+              
+              <div className="space-y-8">
+                <div className="flex gap-6 items-start">
+                  <div className="w-10 h-10 rounded-none border border-brand/30 flex items-center justify-center shrink-0">
+                    <Zap className="w-5 h-5 text-brand" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold mb-2">Estratégia de Valor</h4>
+                    <p className="text-sm text-muted">Seu serviço explicado com mais valor percebido através de uma narrativa visual coerente.</p>
+                  </div>
+                </div>
+                <div className="flex gap-6 items-start">
+                  <div className="w-10 h-10 rounded-none border border-brand/30 flex items-center justify-center shrink-0">
+                    <Cpu className="w-5 h-5 text-brand" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold mb-2">Engenharia de Elite</h4>
+                    <p className="text-sm text-muted">Base técnica pronta para evoluir, com performance extrema e código limpo.</p>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -1227,52 +1627,76 @@ const Contact = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   };
 
   return (
-    <section id="contato" className="py-32 px-6">
-      <div className="max-w-7xl mx-auto rounded-[3rem] bg-brand p-12 md:p-24 relative overflow-hidden text-center">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute inset-0 bg-white/[0.02] mix-blend-overlay" />
-        </div>
-        
+    <section id="contato" className="py-32 px-6 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           className="relative z-10"
         >
-          <span className="text-surface/60 text-[10px] uppercase tracking-[0.3em] font-bold mb-6 block">Vamos construir algo memorável</span>
-          <h2 className="text-5xl md:text-8xl font-display font-bold text-surface leading-[0.85] tracking-tighter mb-12">
-            SE A IDEIA É <span className="text-white italic">IMPRESSIONAR</span> <br /> 
+          <span className="text-brand text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">Vamos construir algo memorável</span>
+          <h2 className="text-6xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12">
+            SE A IDEIA É <span className="text-brand italic">IMPRESSIONAR</span> <br /> 
             ESSE É O CAMINHO.
           </h2>
-          
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-            <MagneticButton 
-              onClick={onOpenPopup}
-              className="px-10 py-5 bg-surface text-brand rounded-full font-bold text-lg hover:scale-105 transition-all shadow-2xl flex items-center gap-3"
-            >
-              Solicitar Análise Grátis
-            </MagneticButton>
-            <div className="relative group">
+          <p className="text-muted text-xl font-light leading-relaxed max-w-md mb-12">
+            Estamos prontos para transformar sua visão em uma autoridade digital inquestionável.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="relative z-10 p-1 bg-gradient-to-br from-brand/20 to-transparent rounded-[3rem]"
+        >
+          <div className="bg-surface rounded-[2.8rem] p-12 md:p-16 border border-white/10">
+            <div className="flex flex-col gap-8">
               <MagneticButton 
-                onClick={copyEmail}
-                className="px-10 py-5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full font-bold text-lg hover:bg-white/30 transition-all flex items-center gap-3"
+                onClick={onOpenPopup}
+                className="w-full py-8 bg-brand text-surface rounded-2xl font-bold text-xl hover:scale-[1.02] transition-all shadow-2xl shadow-brand/20 flex items-center justify-center gap-3 uppercase tracking-widest"
               >
-                {email}
-                <AnimatePresence mode="wait">
-                  {copied ? (
-                    <motion.span key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="text-green-600">✓</motion.span>
-                  ) : (
-                    <Mail className="w-5 h-5" />
-                  )}
-                </AnimatePresence>
+                Solicitar Análise Grátis <Zap className="w-5 h-5" />
               </MagneticButton>
-              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase tracking-widest text-white/60 font-bold">
-                {copied ? "E-mail copiado!" : "Clique para copiar"}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button 
+                  onClick={copyEmail}
+                  className="p-6 bg-white/5 border border-white/10 text-white rounded-2xl font-bold text-sm hover:bg-white/10 transition-all flex flex-col items-center gap-3 group relative"
+                >
+                  <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+                    {copied ? <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-brand">✓</motion.span> : <Mail className="w-5 h-5 text-brand" />}
+                  </div>
+                  <span className="text-[10px] uppercase tracking-widest opacity-60">E-mail</span>
+                  <span className="text-xs truncate w-full text-center">{email}</span>
+                </button>
+
+                <a 
+                  href="https://wa.me/553598403870" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-6 bg-white/5 border border-white/10 text-white rounded-2xl font-bold text-sm hover:bg-white/10 transition-all flex flex-col items-center gap-3 group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors">
+                    <MessageSquare className="w-5 h-5 text-brand" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-widest opacity-60">WhatsApp</span>
+                  <span className="text-xs">+55 35 98403-870</span>
+                </a>
+              </div>
+              
+              <div className="pt-8 border-t border-white/5 flex items-center justify-between">
+                <div className="flex gap-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand/10 hover:border-brand/30 transition-all cursor-pointer">
+                      <div className="w-1 h-1 rounded-full bg-brand" />
+                    </div>
+                  ))}
+                </div>
+                <span className="text-[8px] font-mono text-muted uppercase tracking-widest">Kytrona Studio / 2026</span>
               </div>
             </div>
-            <MagneticButton className="px-10 py-5 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold text-lg transition-all">
-              <a href="https://wa.me/553598403870" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-            </MagneticButton>
           </div>
         </motion.div>
       </div>
@@ -1323,83 +1747,87 @@ const Footer = ({ onNavigate }: { onNavigate: (page: string) => void }) => (
   </footer>
 );
 
-const Insights = ({ onSelectPost, key }: { onSelectPost: (post: BlogPost) => void; key?: string }) => {
+const Insights: React.FC<{ onSelectPost: (post: BlogPost) => void }> = ({ onSelectPost }) => {
   return (
     <section className="pt-40 pb-20 px-6 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
-        <div className="max-w-2xl">
-          <motion.span 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            className="text-brand font-bold uppercase tracking-[0.3em] text-xs mb-4 block"
-          >
-            Insights & Estratégia
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-display font-bold tracking-tighter leading-none"
-          >
-            Pensamento <span className="text-brand italic">Digital</span> para Negócios
-          </motion.h1>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-24">
+        <div className="max-w-3xl">
+          <ScrollReveal>
+            <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+              Insights & Strategy / 007
+            </span>
+            <h1 className="text-6xl md:text-9xl font-display font-bold tracking-tighter leading-[0.85] mb-8">
+              Pensamento <span className="text-brand italic">Digital</span> para Negócios.
+            </h1>
+          </ScrollReveal>
         </div>
-        <motion.p 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          className="text-muted max-w-xs text-sm leading-relaxed"
-        >
-          Exploramos a intersecção entre tecnologia de ponta, design marcante e estratégia de crescimento.
-        </motion.p>
+        <ScrollReveal delay={0.2}>
+          <p className="text-muted max-w-xs text-sm font-mono uppercase tracking-widest md:text-right">
+            [ Artigos ]
+            [ Estratégia ]
+            [ Tecnologia ]
+          </p>
+        </ScrollReveal>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border border-white/10">
         {blogPosts.map((post, index) => (
           <motion.div
             key={post.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             transition={{ delay: index * 0.1 }}
             onClick={() => onSelectPost(post)}
-            className="group cursor-pointer"
+            className={cn(
+              "group cursor-pointer p-10 border-white/10 hover:bg-brand/[0.02] transition-all duration-700",
+              index === 0 ? "lg:col-span-8 lg:border-r lg:border-b" : "lg:col-span-4 lg:border-b",
+              index === 1 ? "lg:border-r" : "",
+              index === 2 ? "" : ""
+            )}
           >
-            <SpotlightCard className="h-full flex flex-col p-0 overflow-hidden">
-              <div className="relative aspect-[16/10] overflow-hidden">
+            <div className="flex flex-col h-full">
+              <div className="relative aspect-video overflow-hidden mb-10">
                 <img 
                   src={post.image} 
                   alt={post.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale group-hover:grayscale-0"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 bg-brand/90 text-surface text-[10px] font-bold uppercase tracking-widest rounded-full backdrop-blur-md">
+                  <span className="px-3 py-1 bg-brand text-surface text-[9px] font-mono uppercase tracking-widest">
                     {post.category}
                   </span>
                 </div>
               </div>
-              <div className="p-8 flex flex-col flex-grow">
-                <div className="flex items-center gap-4 text-[10px] text-muted uppercase tracking-widest mb-4">
+              
+              <div className="flex-grow flex flex-col">
+                <div className="flex items-center gap-4 text-[9px] font-mono text-muted uppercase tracking-widest mb-6">
                   <span>{post.date}</span>
-                  <span className="w-1 h-1 bg-brand rounded-full" />
-                  <span>{post.readTime} de leitura</span>
+                  <span className="w-1 h-[1px] bg-brand" />
+                  <span>{post.readTime} read</span>
                 </div>
-                <h3 className="text-xl font-bold mb-4 group-hover:text-brand transition-colors line-clamp-2">
+                <h3 className={cn(
+                  "font-display font-bold tracking-tight mb-6 group-hover:text-brand transition-colors",
+                  index === 0 ? "text-3xl md:text-5xl" : "text-2xl md:text-3xl"
+                )}>
                   {post.title}
                 </h3>
-                <p className="text-muted text-sm leading-relaxed mb-8 line-clamp-3">
+                <p className="text-muted text-lg font-light leading-relaxed mb-10 line-clamp-3">
                   {post.excerpt}
                 </p>
-                <div className="mt-auto flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <img src={post.author.avatar} alt={post.author.name} className="w-8 h-8 rounded-full border border-white/10" />
+                
+                <div className="mt-auto flex items-center justify-between pt-10 border-t border-white/5">
+                  <div className="flex items-center gap-4">
+                    <img src={post.author.avatar} alt={post.author.name} className="w-10 h-10 rounded-none border border-white/10" />
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-white uppercase">{post.author.name}</span>
-                      <span className="text-[8px] text-muted uppercase">{post.author.role}</span>
+                      <span className="text-[10px] font-bold text-white uppercase tracking-widest">{post.author.name}</span>
+                      <span className="text-[8px] text-muted uppercase tracking-widest">{post.author.role}</span>
                     </div>
                   </div>
-                  <ArrowUpRight className="w-5 h-5 text-brand opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  <ArrowUpRight className="w-6 h-6 text-brand opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                 </div>
               </div>
-            </SpotlightCard>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -1407,7 +1835,7 @@ const Insights = ({ onSelectPost, key }: { onSelectPost: (post: BlogPost) => voi
   );
 };
 
-const BlogPostDetail = ({ post, onBack, key }: { post: BlogPost; onBack: () => void; key?: string }) => {
+const BlogPostDetail: React.FC<{ post: BlogPost; onBack: () => void }> = ({ post, onBack }) => {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -1460,7 +1888,7 @@ const BlogPostDetail = ({ post, onBack, key }: { post: BlogPost; onBack: () => v
   );
 };
 
-const PrivacyPolicy = ({ onBack, key }: { onBack: () => void; key?: string }) => (
+const PrivacyPolicy: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -1504,7 +1932,7 @@ const PrivacyPolicy = ({ onBack, key }: { onBack: () => void; key?: string }) =>
   </motion.div>
 );
 
-const TermsOfService = ({ onBack, key }: { onBack: () => void; key?: string }) => (
+const TermsOfService: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
