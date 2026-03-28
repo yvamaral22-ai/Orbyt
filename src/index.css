@@ -1,25 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Syne", sans-serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
   
-  --color-brand: #d67c52;
-  --color-brand-soft: #f1cfb4;
-  --color-surface: #191512;
-  --color-surface-soft: #221c18;
-  --color-ink: #f6eee6;
-  --color-muted: #cdbfb1;
+  --color-brand: #E67E22; /* Laranja mais profundo e vibrante */
+  --color-brand-soft: #FAD7A0;
+  --color-surface: #0D0D0D; /* Preto quase absoluto para maior contraste */
+  --color-surface-soft: #1A1A1A;
+  --color-ink: #FDFEFE;
+  --color-muted: #95A5A6;
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    cursor: none; /* Vamos usar um cursor customizado para ser "fora da caixa" */
+  }
+  
   body {
     @apply bg-surface text-ink font-sans antialiased selection:bg-brand selection:text-white;
     background: 
-      radial-gradient(circle at top left, rgba(214, 124, 82, 0.18), transparent 28%),
-      radial-gradient(circle at 80% 20%, rgba(126, 140, 109, 0.16), transparent 22%),
-      linear-gradient(160deg, #120f0d 0%, #191512 45%, #241d19 100%);
+      radial-gradient(circle at 0% 0%, rgba(230, 126, 34, 0.15), transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(230, 126, 34, 0.1), transparent 40%),
+      #0D0D0D;
   }
   
   h1, h2, h3, h4 {

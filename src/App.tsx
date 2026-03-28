@@ -330,6 +330,24 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
   }, []);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cursorHover, setCursorHover] = useState(false);
+
+  const handleLinkClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    
+    if (id === 'insights') {
+      onNavigate('insights');
+    } else {
+      onNavigate('home');
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
 
   return (
     <>
@@ -362,20 +380,11 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
               <a 
                 key={item.id} 
                 href={`#${item.id}`} 
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (item.id === 'insights') {
-                    onNavigate('insights');
-                  } else {
-                    onNavigate('home');
-                    setTimeout(() => {
-                      const el = document.getElementById(item.id);
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  }
-                }}
+                onMouseEnter={() => setCursorHover(true)}
+                onMouseLeave={() => setCursorHover(false)}
+                onClick={(e) => handleLinkClick(e, item.id)}
                 className={cn(
-                  "hover:text-brand transition-colors relative group",
+                  "hover:text-brand transition-colors relative group font-mono text-[10px]",
                   activeSection === item.id ? "text-brand" : ""
                 )}
               >
@@ -428,7 +437,7 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
               <a 
                 key={item.id} 
                 href={`#${item.id}`} 
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => handleLinkClick(e, item.id)}
                 className="text-3xl font-display font-bold uppercase tracking-tighter hover:text-brand transition-colors"
               >
                 {item.name}
@@ -558,32 +567,35 @@ const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <span className="inline-block text-brand-soft text-[10px] uppercase tracking-[0.3em] font-bold mb-6">
-            Software com presença, estratégia e profundidade visual
-          </span>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[0.95] tracking-tighter mb-8 uppercase">
-            A Kytrona cria sites, sistemas e SaaS com <span className="text-brand italic">estética marcante</span> para transformar atenção em autoridade.
-          </h1>
-          <p className="text-lg text-muted max-w-xl mb-10 leading-relaxed">
-            Experiências digitais para marcas e negócios que querem sair do visual genérico: interfaces modernas, interatividade inteligente, performance e valor percebido desde o primeiro scroll.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <MagneticButton 
-              onClick={onOpenPopup}
-              className="px-8 py-4 bg-brand text-surface rounded-full font-bold text-sm hover:shadow-[0_0_30px_rgba(214,124,82,0.3)] transition-all"
-            >
-              Solicitar Análise Grátis
-            </MagneticButton>
-            <MagneticButton className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-full font-bold text-sm transition-all">
-              <a href="#servicos">Explorar serviços</a>
-            </MagneticButton>
-          </div>
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <span className="w-12 h-[1px] bg-brand" />
+              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">
+                Premium Software House
+              </span>
+            </div>
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-display leading-[0.85] tracking-tighter mb-10">
+              Transformamos <span className="italic font-normal">visão</span> em <span className="text-brand">autoridade</span> digital.
+            </h1>
+            <p className="text-muted text-lg md:text-xl max-w-xl mb-12 font-light leading-relaxed">
+              Design brutalista, performance extrema e estratégia de mercado. Não apenas sites, mas ativos digitais de alto valor.
+            </p>
+            <div className="flex flex-wrap gap-6">
+              <MagneticButton 
+                onClick={onOpenPopup}
+                className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500"
+              >
+                Iniciar Projeto
+              </MagneticButton>
+              <button className="px-12 py-6 border border-white/10 text-white font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors">
+                Ver Portfólio
+              </button>
+            </div>
+          </motion.div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.9, rotateY: 20 }}
@@ -1750,16 +1762,14 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms' | 'insights' | 'post'>('home');
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const cursorOuterRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
   useEffect(() => {
-    // Aumentamos levemente o tempo do loader para garantir que os recursos pesados (como vídeo) 
-    // comecem a carregar antes da transição de entrada.
     const timer = setTimeout(() => setLoading(false), 2500);
     
-    // Trigger popup after 8 seconds on every page load
     const popupTimer = setTimeout(() => {
       setShowPopup(true);
     }, 8000);
@@ -1767,10 +1777,11 @@ export default function App() {
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
-      if (cursorRef.current) {
-        cursorRef.current.style.left = `${e.clientX}px`;
-        cursorRef.current.style.top = `${e.clientY}px`;
+      if (cursorRef.current && cursorOuterRef.current) {
+        cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+        cursorOuterRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
         cursorRef.current.style.opacity = '1';
+        cursorOuterRef.current.style.opacity = '1';
       }
     };
 
@@ -1796,6 +1807,18 @@ export default function App() {
 
   return (
     <div className="relative selection:bg-brand selection:text-white">
+      {/* Custom Cursor */}
+      <div 
+        ref={cursorRef} 
+        className="fixed top-0 left-0 w-2 h-2 bg-brand rounded-full pointer-events-none z-[9999] mix-blend-difference transition-transform duration-100 ease-out opacity-0"
+        style={{ marginLeft: '-4px', marginTop: '-4px' }}
+      />
+      <div 
+        ref={cursorOuterRef} 
+        className="fixed top-0 left-0 w-10 h-10 border border-brand/30 rounded-full pointer-events-none z-[9998] transition-transform duration-300 ease-out opacity-0"
+        style={{ marginLeft: '-20px', marginTop: '-20px' }}
+      />
+
       <motion.div 
         className="fixed top-0 left-0 right-0 h-1 bg-brand z-[100] origin-left"
         style={{ scaleX: scrollYProgress }}
