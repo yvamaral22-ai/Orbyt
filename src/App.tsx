@@ -139,6 +139,13 @@ const blogPosts: BlogPost[] = [
 
 // --- Helper Components ---
 
+const NoiseOverlay = () => (
+  <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] mix-blend-overlay">
+    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat opacity-50" />
+    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand/5 to-transparent animate-scanline" />
+  </div>
+);
+
 const Logo = ({ className = "w-8 h-8", iconClassName = "w-5 h-5" }: { className?: string; iconClassName?: string }) => (
   <div className={cn("bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20", className)}>
     <svg 
@@ -450,13 +457,13 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
           </div>
 
           <button 
-            className="md:hidden text-ink p-2"
+            className="md:hidden text-white p-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <div className="w-6 h-5 flex flex-col justify-between">
-              <span className={cn("w-full h-0.5 bg-ink transition-all", mobileMenuOpen ? "rotate-45 translate-y-2" : "")} />
-              <span className={cn("w-full h-0.5 bg-ink transition-all", mobileMenuOpen ? "opacity-0" : "")} />
-              <span className={cn("w-full h-0.5 bg-ink transition-all", mobileMenuOpen ? "-rotate-45 -translate-y-2" : "")} />
+              <span className={cn("w-full h-0.5 bg-white transition-all", mobileMenuOpen ? "rotate-45 translate-y-2" : "")} />
+              <span className={cn("w-full h-0.5 bg-white transition-all", mobileMenuOpen ? "opacity-0" : "")} />
+              <span className={cn("w-full h-0.5 bg-white transition-all", mobileMenuOpen ? "-rotate-45 -translate-y-2" : "")} />
             </div>
           </button>
         </div>
@@ -640,7 +647,7 @@ const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
               </span>
             </div>
             
-            <h1 className="text-7xl md:text-9xl lg:text-[11rem] font-display leading-[0.8] tracking-tighter mb-12 select-none">
+            <h1 className="text-4xl md:text-8xl lg:text-[9rem] font-display leading-[0.8] tracking-tighter mb-12 select-none break-words">
               <span className="block overflow-hidden">
                 <span className="block gsap-split-text">Transformamos</span>
               </span>
@@ -940,7 +947,7 @@ const Services = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   ];
 
   return (
-    <section id="servicos" className="py-32 border-t border-white/10 bg-surface relative overflow-hidden">
+    <section id="servicos" className="py-20 md:py-32 border-t border-white/10 bg-surface relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-12">
           <div className="max-w-3xl">
@@ -948,7 +955,7 @@ const Services = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
               <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block gsap-reveal">
                 Capabilities / 001
               </span>
-              <h2 className="text-6xl md:text-9xl font-display leading-[0.85] tracking-tighter overflow-hidden">
+              <h2 className="text-5xl md:text-9xl font-display leading-[0.85] tracking-tighter overflow-hidden">
                 <span className="block gsap-split-text">O que <span className="italic font-normal">dominamos</span></span>
                 <span className="block gsap-split-text">para elevar sua marca.</span>
               </h2>
@@ -1053,17 +1060,17 @@ const Process = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   ];
 
   return (
-    <section id="processo" className="py-32 border-t border-white/10 relative overflow-hidden">
+    <section id="processo" className="py-20 md:py-32 border-t border-white/10 relative overflow-hidden">
       <FloatingElement speed={0.1} className="top-0 right-0 w-[500px] h-[500px] bg-brand/5 blur-[120px] rounded-full" />
       
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-20 items-start relative z-10">
           <div className="lg:col-span-5 lg:sticky lg:top-32">
             <ScrollReveal>
               <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
                 Methodology / 003
               </span>
-              <h2 className="text-6xl md:text-8xl font-display leading-[0.85] tracking-tighter mb-10 gsap-reveal">
+              <h2 className="text-4xl md:text-8xl font-display leading-[0.85] tracking-tighter mb-10 gsap-reveal break-words">
                 Da ideia ao produto com um processo <span className="text-brand italic">enxuto</span> e orientado a resultado.
               </h2>
               <p className="text-muted text-lg font-light leading-relaxed mb-12 max-w-md gsap-reveal">
@@ -1477,16 +1484,21 @@ const Portfolio = () => {
   };
 
   return (
-    <section id="portfolio" className="portfolio-section relative bg-surface">
+    <section id="portfolio" className="portfolio-section relative bg-surface overflow-hidden">
+      {/* Horizontal Progress Bar */}
+      <div className="fixed bottom-0 left-0 w-full h-1 bg-white/5 z-[60] origin-left">
+        <div className="portfolio-progress-bar h-full bg-brand w-full scale-x-0 origin-left shadow-[0_0_10px_rgba(214,124,82,0.5)]" />
+      </div>
+
       <div className="portfolio-sticky h-screen sticky top-0 flex items-center overflow-hidden">
-        <div className="portfolio-container flex gap-12 px-[10vw]">
-          <div className="portfolio-intro flex flex-col justify-center min-w-[40vw] pr-20">
+        <div className="portfolio-container flex gap-10 md:gap-24 px-[10vw] md:px-[20vw] items-center">
+          <div className="portfolio-intro flex flex-col justify-center min-w-[85vw] md:min-w-[30vw] pr-8 md:pr-32 flex-shrink-0">
             <span className="text-brand text-[10px] uppercase tracking-[0.4em] font-bold mb-8 block gsap-reveal">Selected Works / 002</span>
-            <h2 className="text-7xl md:text-9xl font-display font-bold leading-[0.85] tracking-tighter mb-12 gsap-reveal">
+            <h2 className="text-5xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12 gsap-reveal break-words">
               Projetos que <br />
               <span className="text-brand italic">definem o futuro.</span>
             </h2>
-            <p className="text-muted text-xl font-light leading-relaxed max-w-md gsap-reveal">
+            <p className="text-muted text-lg md:text-xl font-light leading-relaxed max-w-md gsap-reveal">
               Uma seleção curada de soluções digitais que combinam estética brutalista com performance extrema.
             </p>
           </div>
@@ -1494,9 +1506,9 @@ const Portfolio = () => {
           {projects.map((project, idx) => (
             <div
               key={idx}
-              className="project-card min-w-[80vw] md:min-w-[45vw] h-[70vh] relative group overflow-hidden border border-white/10 bg-surface/50 backdrop-blur-sm flex flex-col cursor-none"
+              className="project-card min-w-[85vw] md:min-w-[42vw] h-[65vh] md:h-[75vh] relative group overflow-hidden border border-white/10 bg-surface/50 backdrop-blur-sm flex flex-col cursor-none flex-shrink-0 transition-all duration-700 hover:border-brand/40 hover:shadow-2xl hover:shadow-brand/5"
             >
-              <div className={cn("flex-1 relative overflow-hidden p-12", project.color)}>
+              <div className={cn("flex-1 relative overflow-hidden p-6 md:p-12 gsap-mask-reveal-horizontal", project.color)}>
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
                 
                 <div className="absolute top-6 left-6 flex gap-4 opacity-40 z-20">
@@ -1519,11 +1531,11 @@ const Portfolio = () => {
                 </motion.div>
               </div>
 
-              <div className="p-12 bg-surface/80 backdrop-blur-md border-t border-white/10">
-                <div className="flex justify-between items-start mb-6">
+              <div className="p-8 md:p-12 bg-surface/80 backdrop-blur-md border-t border-white/10 relative">
+                <div className="flex justify-between items-start mb-4 md:mb-6">
                   <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">{project.category}</span>
                 </div>
-                <h3 className="text-4xl font-display tracking-tight mb-6 group-hover:text-brand transition-colors duration-500">{project.title}</h3>
+                <h3 className="text-3xl md:text-5xl font-display tracking-tight mb-4 md:mb-8 group-hover:text-brand transition-colors duration-500 project-title-parallax break-words">{project.title}</h3>
                 <div className="flex items-center justify-between">
                   <MagneticButton 
                     onClick={() => setSelectedProject(project)}
@@ -1536,13 +1548,13 @@ const Portfolio = () => {
             </div>
           ))}
 
-          <div className="portfolio-outro flex flex-col justify-center min-w-[40vw] pl-20">
-            <h2 className="text-6xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12">
+          <div className="portfolio-outro flex flex-col justify-center min-w-[85vw] md:min-w-[30vw] pl-8 md:pl-32 flex-shrink-0">
+            <h2 className="text-5xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12">
               Seu projeto <br />
               <span className="text-brand italic">é o próximo?</span>
             </h2>
             <MagneticButton 
-              className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500 w-fit"
+              className="px-10 py-5 md:px-12 md:py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500 w-fit"
             >
               Vamos Conversar
             </MagneticButton>
@@ -1649,7 +1661,7 @@ const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section id="depoimentos" className="py-32 border-t border-white/10 relative overflow-hidden">
+    <section id="depoimentos" className="py-20 md:py-32 border-t border-white/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
           <div className="lg:col-span-5">
@@ -1782,7 +1794,7 @@ const Contact = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   };
 
   return (
-    <section id="contato" className="py-32 px-6 relative overflow-hidden">
+    <section id="contato" className="py-20 md:py-32 px-6 relative overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -1791,7 +1803,7 @@ const Contact = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
           className="relative z-10"
         >
           <span className="text-brand text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">Vamos construir algo memorável</span>
-          <h2 className="text-6xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12">
+          <h2 className="text-4xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12 break-words">
             SE A IDEIA É <span className="text-brand italic">IMPRESSIONAR</span> <br /> 
             ESSE É O CAMINHO.
           </h2>
@@ -2341,7 +2353,7 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function App() {
+function App() {
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
   const [currentPage, setCurrentPage] = useState<'home' | 'privacy' | 'terms' | 'insights' | 'post'>('home');
@@ -2398,15 +2410,15 @@ export default function App() {
       if (reveals.length > 0) {
         gsap.fromTo(reveals, 
           { 
-            y: 100, 
+            y: 50, 
             opacity: 0,
-            skewY: 7
+            skewY: 3
           },
           {
             y: 0,
             opacity: 1,
             skewY: 0,
-            duration: 1.5,
+            duration: 1.2,
             ease: "expo.out",
             stagger: 0.1,
             scrollTrigger: {
@@ -2455,24 +2467,63 @@ export default function App() {
       }
     });
 
-    // Advanced Portfolio Horizontal Scroll
+    // Advanced Portfolio Horizontal Scroll (Lando Norris Style)
     const portfolioSection = document.querySelector('.portfolio-section');
     const portfolioContainer = document.querySelector('.portfolio-container');
+    const portfolioProgress = document.querySelector('.portfolio-progress-bar');
     
     if (portfolioSection && portfolioContainer) {
-      const scrollWidth = portfolioContainer.scrollWidth - window.innerWidth;
+      const getScrollWidth = () => portfolioContainer.scrollWidth - window.innerWidth;
       
-      gsap.to(portfolioContainer, {
-        x: -scrollWidth,
+      const horizontalScroll = gsap.to(portfolioContainer, {
+        x: () => -getScrollWidth(),
         ease: "none",
         scrollTrigger: {
           trigger: portfolioSection,
           pin: true,
           start: "top top",
-          end: () => `+=${scrollWidth}`,
+          end: () => `+=${getScrollWidth()}`,
           scrub: 1,
           invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (portfolioProgress) {
+              gsap.to(portfolioProgress, { scaleX: self.progress, duration: 0.1, ease: "none" });
+            }
+          }
         }
+      });
+
+      // Parallax effect for project titles inside cards
+      gsap.utils.toArray('.project-title-parallax').forEach((title: any) => {
+        gsap.to(title, {
+          x: -100,
+          ease: "none",
+          scrollTrigger: {
+            trigger: title,
+            containerAnimation: horizontalScroll,
+            start: "left right",
+            end: "right left",
+            scrub: true
+          }
+        });
+      });
+
+      // Cinematic Mask Reveal for Horizontal Items
+      gsap.utils.toArray('.gsap-mask-reveal-horizontal').forEach((mask: any) => {
+        gsap.fromTo(mask, 
+          { clipPath: 'inset(100% 0% 0% 0%)' },
+          {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            duration: 1.5,
+            ease: "power4.inOut",
+            scrollTrigger: {
+              trigger: mask,
+              containerAnimation: horizontalScroll,
+              start: "left 90%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
       });
     }
 
@@ -2569,9 +2620,10 @@ export default function App() {
       });
     });
 
-    // Video Parallax
+    // Video Parallax & Cinematic Scale
     gsap.to('.gsap-video-parallax', {
-      yPercent: 30,
+      yPercent: 20,
+      scale: 1.1,
       ease: "none",
       scrollTrigger: {
         trigger: 'body',
@@ -2579,6 +2631,39 @@ export default function App() {
         end: "bottom bottom",
         scrub: true
       }
+    });
+
+    // Cinematic Mask Reveal for Images
+    gsap.utils.toArray('.gsap-mask-reveal').forEach((mask: any) => {
+      gsap.fromTo(mask, 
+        { clipPath: 'inset(100% 0% 0% 0%)' },
+        {
+          clipPath: 'inset(0% 0% 0% 0%)',
+          duration: 1.5,
+          ease: "power4.inOut",
+          scrollTrigger: {
+            trigger: mask,
+            start: "top 90%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
+    });
+
+    // Advanced Text Reveal (Cinematic Style)
+    gsap.utils.toArray('.gsap-split-text').forEach((text: any) => {
+      gsap.from(text, {
+        yPercent: 110,
+        rotateX: -40,
+        opacity: 0,
+        duration: 1.8,
+        ease: "expo.out",
+        scrollTrigger: {
+          trigger: text,
+          start: "top 95%",
+          toggleActions: "play none none reverse"
+        }
+      });
     });
 
     // Magnetic Buttons Logic with GSAP
@@ -2702,7 +2787,8 @@ export default function App() {
   };
 
   return (
-    <div ref={containerRef} className="relative selection:bg-brand selection:text-white">
+    <div ref={containerRef} className="relative selection:bg-brand selection:text-white bg-surface">
+      <NoiseOverlay />
       {/* Custom Cursor */}
       <div 
         ref={cursorRef} 
@@ -2833,3 +2919,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
