@@ -1,5 +1,9 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useEffect, useRef, memo, useLayoutEffect } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useMotionTemplate } from 'motion/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+import Lenis from 'lenis';
 import { 
   Code2, 
   Cpu, 
@@ -400,7 +404,7 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
         )}
       >
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => onNavigate('home')}>
+          <div className="flex items-center gap-3 group cursor-pointer magnetic-btn" onClick={() => onNavigate('home')}>
             <div className="transition-transform duration-500 rotate-3 group-hover:rotate-12">
               <Logo />
             </div>
@@ -424,11 +428,11 @@ const Navbar = ({ onNavigate, onOpenPopup }: { onNavigate: (page: string) => voi
                 onMouseLeave={() => setCursorHover(false)}
                 onClick={(e) => handleLinkClick(e, item.id)}
                 className={cn(
-                  "hover:text-brand transition-colors relative group font-mono text-[10px]",
+                  "hover:text-brand transition-colors relative group font-mono text-[10px] magnetic-btn px-2 py-1",
                   activeSection === item.id ? "text-brand" : ""
                 )}
               >
-                {item.name}
+                <span>{item.name}</span>
                 <motion.span 
                   className={cn(
                     "absolute -bottom-1 left-0 h-px bg-brand transition-all",
@@ -543,7 +547,7 @@ const VideoBackground = memo(() => {
   }, [activeVideo]);
 
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
+    <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none bg-surface gsap-video-parallax">
       <div className="absolute inset-0 transform-gpu">
         <video
           ref={videoRef1}
@@ -585,8 +589,9 @@ const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
   const mouseY = useMotionValue(0);
   const { scrollY } = useScroll();
 
-  const heroY = useTransform(scrollY, [0, 500], [0, 150]);
-  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const heroY = useTransform(scrollY, [0, 1200], [0, 400]);
+  const heroOpacity = useTransform(scrollY, [800, 1200], [1, 0]);
+  const bgScale = useTransform(scrollY, [0, 1500], [1, 1.4]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -597,85 +602,139 @@ const Hero = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const orb1X = useTransform(mouseX, [0, window.innerWidth], [-20, 20]);
-  const orb1Y = useTransform(mouseY, [0, window.innerHeight], [-20, 20]);
-  const orb2X = useTransform(mouseX, [0, window.innerWidth], [20, -20]);
-  const orb2Y = useTransform(mouseY, [0, window.innerHeight], [20, -20]);
+  const orb1X = useTransform(mouseX, [0, window.innerWidth], [-40, 40]);
+  const orb1Y = useTransform(mouseY, [0, window.innerHeight], [-40, 40]);
+  const orb2X = useTransform(mouseX, [0, window.innerWidth], [40, -40]);
+  const orb2Y = useTransform(mouseY, [0, window.innerHeight], [40, -40]);
 
   return (
     <section id="inicio" className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 overflow-hidden px-6">
-      <VideoBackground />
+      <motion.div style={{ scale: bgScale }} className="absolute inset-0 -z-20">
+        <VideoBackground />
+      </motion.div>
+      
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-brand/10 blur-[80px] rounded-full will-change-transform" />
-        <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-olive/10 blur-[80px] rounded-full will-change-transform" />
+        <motion.div style={{ x: orb1X, y: orb1Y }} className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-brand/20 blur-[120px] rounded-full will-change-transform" />
+        <motion.div style={{ x: orb2X, y: orb2Y }} className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-brand-soft/10 blur-[120px] rounded-full will-change-transform" />
+        
+        {/* GTA VI Style Atmospheric Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(230,126,34,0.1)_0%,transparent_70%)]" />
       </div>
 
       <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Parallax offset={30}>
-              <div className="flex items-center gap-4 mb-8">
-                <span className="w-12 h-[1px] bg-brand" />
-                <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">
-                  Premium Software House
-                </span>
-              </div>
-              <h1 className="text-6xl md:text-8xl lg:text-9xl font-display leading-[0.85] tracking-tighter mb-10">
-                Transformamos <span className="italic font-normal">visão</span> em <span className="text-brand">autoridade</span> digital.
-              </h1>
-              <p className="text-muted text-lg md:text-xl max-w-xl mb-12 font-light leading-relaxed">
-                Design brutalista, performance extrema e estratégia de mercado. Não apenas sites, mas ativos digitais de alto valor.
-              </p>
-              <div className="flex flex-wrap gap-6">
-                <MagneticButton 
-                  onClick={onOpenPopup}
-                  className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500"
-                >
-                  Iniciar Projeto
-                </MagneticButton>
-                <button className="px-12 py-6 border border-white/10 text-white font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-colors">
-                  Ver Portfólio
-                </button>
-              </div>
-            </Parallax>
+            <div className="flex items-center gap-4 mb-12">
+              <motion.span 
+                initial={{ width: 0 }}
+                animate={{ width: 48 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="h-[1px] bg-brand" 
+              />
+              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.6em] font-bold">
+                Premium Software House
+              </span>
+            </div>
+            
+            <h1 className="text-7xl md:text-9xl lg:text-[11rem] font-display leading-[0.8] tracking-tighter mb-12 select-none">
+              <span className="block overflow-hidden">
+                <span className="block gsap-split-text">Transformamos</span>
+              </span>
+              <span className="block overflow-hidden">
+                <span className="block gsap-split-text italic font-normal text-white/90">visão</span>
+              </span>
+              <span className="block overflow-hidden">
+                <span className="block gsap-split-text text-brand">autoridade</span>
+              </span>
+            </h1>
+
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1 }}
+              className="text-muted text-xl md:text-2xl max-w-xl mb-16 font-light leading-relaxed"
+            >
+              Design brutalista, performance extrema e estratégia de mercado. Não apenas sites, mas ativos digitais de alto valor.
+            </motion.p>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1.2 }}
+              className="flex flex-wrap gap-8"
+            >
+              <MagneticButton 
+                onClick={onOpenPopup}
+                className="magnetic-btn px-16 py-8 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-[0.3em] hover:bg-white transition-colors duration-500 shadow-2xl shadow-brand/20"
+              >
+                Iniciar Projeto
+              </MagneticButton>
+              <button 
+                onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-16 py-8 border border-white/10 text-white font-bold text-sm uppercase tracking-[0.3em] hover:bg-white/5 transition-colors backdrop-blur-sm"
+              >
+                Ver Portfólio
+              </button>
+            </motion.div>
           </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, rotateY: 20 }}
+          initial={{ opacity: 0, scale: 0.8, rotateY: 30 }}
           animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="relative perspective-1000"
+          transition={{ duration: 1.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="relative perspective-1000 hidden lg:block"
         >
           <TiltCard className="w-full">
-            <div className="relative rounded-[2.5rem] border border-white/10 bg-white/5 p-6 backdrop-blur-2xl shadow-2xl overflow-hidden">
-              <div className="flex justify-between items-center mb-8">
-                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-widest">Build + Branding</span>
-                <span className="text-[10px] text-muted uppercase tracking-widest">Seleção Curada</span>
+            <div className="relative rounded-[3rem] border border-white/10 bg-white/5 p-8 backdrop-blur-3xl shadow-2xl overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-brand/10 via-transparent to-brand-soft/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+              
+              <div className="flex justify-between items-center mb-10">
+                <span className="px-4 py-1.5 rounded-full bg-brand/20 border border-brand/30 text-[10px] font-bold uppercase tracking-widest text-brand">Build + Branding</span>
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                </div>
               </div>
-              <div className="aspect-[4/3] rounded-3xl bg-gradient-to-br from-brand/20 to-olive/20 border border-white/10 relative overflow-hidden mb-8">
-                <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+              <div className="aspect-[4/3] rounded-3xl bg-surface/40 border border-white/10 relative overflow-hidden mb-10 group-hover:border-brand/30 transition-colors duration-500">
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                
                 <motion.div 
-                  animate={{ y: [0, -20, 0], x: [0, 10, 0] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-10 left-10 w-2/3 h-1/2 bg-white/10 rounded-2xl border border-white/20 backdrop-blur-md shadow-xl" 
-                />
+                  animate={{ 
+                    y: [0, -30, 0], 
+                    x: [0, 15, 0],
+                    rotate: [0, 2, 0]
+                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute top-12 left-12 w-3/4 h-3/5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center" 
+                >
+                  <Zap className="w-12 h-12 text-brand/40" />
+                </motion.div>
+                
                 <motion.div 
-                  animate={{ y: [0, 20, 0], x: [0, -10, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  className="absolute bottom-10 right-10 w-1/3 h-2/3 bg-brand/20 rounded-2xl border border-white/20 backdrop-blur-md shadow-xl" 
+                  animate={{ 
+                    y: [0, 30, 0], 
+                    x: [0, -15, 0],
+                    rotate: [0, -2, 0]
+                  }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute bottom-12 right-12 w-1/2 h-2/3 bg-brand/10 rounded-2xl border border-brand/20 backdrop-blur-xl shadow-2xl" 
                 />
               </div>
+
               <div className="flex justify-between items-end">
                 <div>
-                  <h3 className="text-xl font-bold mb-2">Linguagem visual própria</h3>
-                  <p className="text-xs text-muted max-w-[250px]">Direção de arte, UX, frontend refinado e arquitetura sólida pela Kytrona.</p>
+                  <h3 className="text-2xl font-display font-bold mb-3 group-hover:text-brand transition-colors">Linguagem visual própria</h3>
+                  <p className="text-sm text-muted max-w-[280px] leading-relaxed">Direção de arte, UX, frontend refinado e arquitetura sólida pela Kytrona.</p>
                 </div>
                 <div className="flex gap-2">
-                  {['Web', 'SaaS', 'Apps'].map(tag => (
-                    <span key={tag} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-bold uppercase tracking-widest">{tag}</span>
+                  {['Web', 'SaaS'].map(tag => (
+                    <span key={tag} className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold uppercase tracking-widest">{tag}</span>
                   ))}
                 </div>
               </div>
@@ -722,12 +781,9 @@ const TechStack = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-t border-l border-white/10">
           {techs.map((tech, idx) => (
-            <motion.div 
+            <div 
               key={idx}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              className="group p-10 border-r border-b border-white/10 hover:bg-brand/[0.02] transition-colors relative overflow-hidden"
+              className="group p-10 border-r border-b border-white/10 hover:bg-brand/[0.02] transition-colors relative overflow-hidden gsap-reveal"
             >
               <div className="absolute top-4 right-4 text-[8px] font-mono text-muted/30 group-hover:text-brand/40 transition-colors">
                 MOD_00{idx + 1}
@@ -742,7 +798,7 @@ const TechStack = () => {
                 </div>
               </div>
               <div className="absolute bottom-0 left-0 w-full h-[1px] bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -779,10 +835,10 @@ const FAQ = () => {
             <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
               FAQ / 004
             </span>
-            <h2 className="text-5xl md:text-7xl font-display leading-[0.85] tracking-tighter mb-10">
+            <h2 className="text-5xl md:text-7xl font-display leading-[0.85] tracking-tighter mb-10 gsap-reveal">
               Transparência em <span className="italic font-normal text-brand">cada etapa</span> do processo.
             </h2>
-            <p className="text-muted text-lg font-light leading-relaxed max-w-md">
+            <p className="text-muted text-lg font-light leading-relaxed max-w-md gsap-reveal">
               Dúvidas comuns sobre como elevamos o patamar digital do seu negócio.
             </p>
           </div>
@@ -790,7 +846,7 @@ const FAQ = () => {
 
         <div className="divide-y divide-white/10 border-t border-white/10">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="group">
+            <div key={idx} className="group gsap-reveal">
               <button 
                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                 className="w-full py-10 text-left flex justify-between items-start gap-8"
@@ -889,16 +945,17 @@ const Services = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-12">
           <div className="max-w-3xl">
             <ScrollReveal>
-              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
+              <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block gsap-reveal">
                 Capabilities / 001
               </span>
-              <h2 className="text-6xl md:text-9xl font-display leading-[0.85] tracking-tighter">
-                O que <span className="italic font-normal">dominamos</span> para elevar sua marca.
+              <h2 className="text-6xl md:text-9xl font-display leading-[0.85] tracking-tighter overflow-hidden">
+                <span className="block gsap-split-text">O que <span className="italic font-normal">dominamos</span></span>
+                <span className="block gsap-split-text">para elevar sua marca.</span>
               </h2>
             </ScrollReveal>
           </div>
           <ScrollReveal delay={0.2}>
-            <div className="flex flex-col items-start md:items-end gap-8">
+            <div className="flex flex-col items-start md:items-end gap-8 gsap-reveal">
               <p className="text-muted text-sm font-mono uppercase tracking-widest max-w-[200px] md:text-right">
                 [ 4 Especialidades ]
                 [ Design Brutalista ]
@@ -1006,10 +1063,10 @@ const Process = ({ onOpenPopup }: { onOpenPopup: () => void }) => {
               <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold mb-6 block">
                 Methodology / 003
               </span>
-              <h2 className="text-6xl md:text-8xl font-display leading-[0.85] tracking-tighter mb-10">
+              <h2 className="text-6xl md:text-8xl font-display leading-[0.85] tracking-tighter mb-10 gsap-reveal">
                 Da ideia ao produto com um processo <span className="text-brand italic">enxuto</span> e orientado a resultado.
               </h2>
-              <p className="text-muted text-lg font-light leading-relaxed mb-12 max-w-md">
+              <p className="text-muted text-lg font-light leading-relaxed mb-12 max-w-md gsap-reveal">
                 Eliminamos o excesso para focar no que realmente gera valor e autoridade para sua marca no ambiente digital.
               </p>
               <MagneticButton 
@@ -1059,96 +1116,109 @@ const Portfolio = () => {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const projects = [
     {
-      title: "Lumina Landing",
-      category: "Site Institucional Premium",
-      description: "Landing page de alta conversão para consultoria financeira, com animações fluidas, tipografia editorial e performance nota 100.",
+      title: "Apex Finance",
+      category: "Consultoria & Wealth Management",
+      description: "Plataforma de alta performance para gestores de patrimônio. Interface ultra-limpa com visualização de ativos em tempo real e relatórios automatizados.",
       color: "from-brand/20 to-brand-soft/20",
       featured: true,
       type: "landing",
-      badge: "Performance",
-      colSpan: "lg:col-span-2"
+      badge: "Fintech",
+      colSpan: "lg:col-span-2",
+      siteName: "apex.finance"
     },
     {
-      title: "Kytrona Dashboard",
-      category: "Plataforma SaaS",
-      description: "Sistema de gestão empresarial com foco em dados em tempo real e automação de processos.",
+      title: "Nexus ERP Cloud",
+      category: "Gestão Industrial 4.0",
+      description: "Dashboard analítico para controle de produção e logística. Integração total com IoT e monitoramento de KPIs em tempo real.",
       color: "from-brand/10 to-brand-soft/10",
       featured: true,
       type: "dashboard",
-      badge: "SaaS",
-      colSpan: "lg:col-span-2 lg:row-span-2"
+      badge: "Enterprise",
+      colSpan: "lg:col-span-2 lg:row-span-2",
+      siteName: "nexus.cloud"
     },
     {
-      title: "EcoTrack Mobile",
-      category: "Aplicativo Mobile",
-      description: "Interface intuitiva para monitoramento de impacto ambiental e créditos de carbono.",
+      title: "GreenPulse App",
+      category: "Sustentabilidade & ESG",
+      description: "Ecossistema mobile para rastreamento de pegada de carbono. Gamificação e recompensas para práticas sustentáveis corporativas.",
       color: "from-emerald-500/10 to-brand/10",
       featured: false,
-      type: "dashboard",
-      badge: "Mobile",
-      colSpan: "lg:col-span-1 lg:row-span-1"
+      type: "mobile",
+      badge: "ESG",
+      colSpan: "lg:col-span-1 lg:row-span-1",
+      siteName: "greenpulse.io"
     },
     {
-      title: "Nova Commerce",
-      category: "E-commerce Headless",
-      description: "Loja virtual ultra-rápida com foco em experiência de compra imersiva e checkout otimizado.",
+      title: "Velo Luxury Store",
+      category: "E-commerce de Luxo",
+      description: "Loja virtual headless com foco em experiência sensorial. Carregamento instantâneo e checkout otimizado para alta conversão.",
       color: "from-brand/20 to-brand-soft/20",
       featured: false,
-      type: "landing",
-      badge: "E-commerce",
-      colSpan: "lg:col-span-1 lg:row-span-1"
+      type: "ecommerce",
+      badge: "Retail",
+      colSpan: "lg:col-span-1 lg:row-span-1",
+      siteName: "velo.store"
     },
     {
-      title: "Zenith Portal",
-      category: "Área de Membros",
-      description: "Plataforma exclusiva para cursos e mentorias com sistema de gamificação integrado.",
+      title: "Aura LXP",
+      category: "EdTech & Treinamento",
+      description: "Plataforma de aprendizado imersivo para times de elite. Trilhas personalizadas com IA e análise de progresso detalhada.",
       color: "from-brand/20 to-brand-soft/20",
       featured: false,
       type: "analytics",
-      badge: "LXP",
-      colSpan: "lg:col-span-2 lg:row-span-1"
+      badge: "EdTech",
+      colSpan: "lg:col-span-2 lg:row-span-1",
+      siteName: "aura.edu"
     }
   ];
 
-  const renderBrowserContent = (type: string) => {
+  const renderBrowserContent = (project: any) => {
+    const { type, siteName } = project;
     switch (type) {
       case 'landing':
         return (
           <div className="flex-1 p-0 flex flex-col overflow-hidden bg-surface">
             <div className="h-10 border-b border-white/5 flex items-center justify-between px-4 bg-white/[0.02]">
-              <div className="flex gap-1.5">
+              <div className="flex gap-1.5 items-center">
                 <div className="w-2 h-2 rounded-full bg-brand" />
-                <div className="w-16 h-1.5 bg-white/10 rounded-full" />
+                <span className="text-[8px] font-mono text-white/40 uppercase tracking-widest">{siteName}</span>
               </div>
               <div className="flex gap-4">
                 <div className="w-10 h-1 bg-white/10 rounded-full" />
                 <div className="w-10 h-1 bg-white/10 rounded-full" />
-                <div className="w-10 h-1 bg-white/10 rounded-full" />
               </div>
             </div>
-            <div className="flex-1 p-8 flex flex-col gap-6">
+            <div className="flex-1 p-8 flex flex-col gap-6 overflow-hidden">
               <div className="space-y-3">
                 <motion.div 
                   initial={{ width: 0 }}
-                  whileInView={{ width: "80%" }}
-                  className="h-6 bg-gradient-to-r from-brand/20 to-transparent rounded-lg" 
+                  whileInView={{ width: "90%" }}
+                  className="h-8 bg-gradient-to-r from-brand/30 to-transparent rounded-lg" 
                 />
                 <motion.div 
                   initial={{ width: 0 }}
-                  whileInView={{ width: "60%" }}
+                  whileInView={{ width: "70%" }}
                   transition={{ delay: 0.1 }}
-                  className="h-6 bg-gradient-to-r from-brand/10 to-transparent rounded-lg" 
+                  className="h-4 bg-white/10 rounded-lg" 
                 />
               </div>
-              <div className="h-40 w-full bg-brand/5 rounded-3xl border border-brand/10 flex items-center justify-center relative overflow-hidden group/hero">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(214,124,82,0.1)_0%,transparent_70%)]" />
-                <Zap className="w-12 h-12 text-brand/40 relative z-10" />
+              <div className="h-48 w-full bg-brand/5 rounded-3xl border border-brand/10 flex items-center justify-center relative overflow-hidden group/hero">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(214,124,82,0.15)_0%,transparent_70%)]" />
+                <div className="flex flex-col items-center gap-4 relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-brand/20 flex items-center justify-center border border-brand/30">
+                    <ArrowUpRight className="w-8 h-8 text-brand" />
+                  </div>
+                  <div className="h-2 w-32 bg-brand/40 rounded-full" />
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="h-24 bg-white/[0.02] rounded-2xl border border-white/5 p-4 flex flex-col justify-between">
+                  <div key={i} className="h-28 bg-white/[0.02] rounded-2xl border border-white/5 p-4 flex flex-col gap-3">
                     <div className="w-8 h-8 rounded-lg bg-brand/10" />
-                    <div className="h-1.5 w-full bg-white/10 rounded-full" />
+                    <div className="space-y-2">
+                      <div className="h-1.5 w-full bg-white/10 rounded-full" />
+                      <div className="h-1.5 w-2/3 bg-white/5 rounded-full" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1163,7 +1233,7 @@ const Portfolio = () => {
                 <div className="w-4 h-4 rounded bg-brand" />
               </div>
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                <div key={i} className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-brand/20 transition-colors">
                   <div className="w-3 h-3 rounded-sm bg-white/10" />
                 </div>
               ))}
@@ -1171,8 +1241,8 @@ const Portfolio = () => {
             <div className="flex-1 p-8 flex flex-col gap-8">
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-brand uppercase tracking-widest">{siteName}</span>
                   <div className="h-4 w-32 bg-white/10 rounded-full" />
-                  <div className="h-2 w-20 bg-white/5 rounded-full" />
                 </div>
                 <div className="flex gap-2">
                   <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10" />
@@ -1180,11 +1250,11 @@ const Portfolio = () => {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { label: "Vendas", val: "R$ 42k", color: "brand" },
-                  { label: "Clientes", val: "1.2k", color: "white" },
-                  { label: "Taxa", val: "89%", color: "white" }
+                  { label: "Revenue", val: "R$ 452k", color: "brand" },
+                  { label: "Active", val: "12.8k", color: "white" },
+                  { label: "Growth", val: "+14%", color: "white" }
                 ].map((stat, i) => (
-                  <div key={i} className="h-24 bg-white/[0.02] rounded-2xl border border-white/5 p-5 flex flex-col justify-between group/stat">
+                  <div key={i} className="h-24 bg-white/[0.02] rounded-2xl border border-white/5 p-5 flex flex-col justify-between group/stat hover:border-brand/30 transition-all">
                     <span className="text-[8px] font-mono uppercase tracking-widest text-muted">{stat.label}</span>
                     <span className={cn("text-xl font-display font-bold", stat.color === 'brand' ? "text-brand" : "text-white")}>{stat.val}</span>
                   </div>
@@ -1206,9 +1276,79 @@ const Portfolio = () => {
                         <div className="h-2 w-full bg-white/10 rounded-full" />
                         <div className="h-1.5 w-2/3 bg-white/5 rounded-full" />
                       </div>
+                      <div className="w-12 h-4 bg-brand/10 rounded-full" />
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'mobile':
+        return (
+          <div className="flex-1 p-0 flex flex-col items-center justify-center bg-surface relative overflow-hidden">
+            <div className="w-52 h-[420px] bg-black rounded-[40px] border-[8px] border-white/10 relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-3xl z-20" />
+              <div className="absolute inset-0 p-6 flex flex-col gap-6 bg-gradient-to-b from-emerald-500/20 to-surface">
+                <div className="mt-8 flex flex-col items-center gap-3">
+                  <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
+                    <Globe className="w-10 h-10 text-emerald-500" />
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-500 uppercase tracking-widest">{siteName}</span>
+                  <div className="h-2 w-24 bg-white/20 rounded-full" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-20 bg-white/5 rounded-2xl border border-white/10 flex flex-col items-center justify-center gap-2 hover:bg-white/10 transition-colors">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/40" />
+                      <div className="h-1 w-10 bg-white/10 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-auto h-14 w-full bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                  <div className="h-1.5 w-16 bg-white/40 rounded-full" />
+                </div>
+              </div>
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-emerald-500/10 blur-[120px] -z-10" />
+          </div>
+        );
+      case 'ecommerce':
+        return (
+          <div className="flex-1 p-0 flex flex-col overflow-hidden bg-surface">
+            <div className="h-12 border-b border-white/5 flex items-center justify-between px-6 bg-white/[0.02]">
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-6 rounded bg-brand/20" />
+                <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">{siteName}</span>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                  <Smartphone className="w-4 h-4 text-white/40" />
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 p-8 flex flex-col gap-8">
+              <div className="grid grid-cols-2 gap-8">
+                <div className="aspect-square bg-white/5 rounded-[2rem] border border-white/10 relative overflow-hidden group/prod">
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand/30 to-transparent opacity-0 group-hover/prod:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Rocket className="w-16 h-16 text-brand/20 group-hover/prod:text-brand/40 transition-all duration-500" />
+                  </div>
+                  <div className="absolute bottom-6 left-6 right-6 h-4 bg-white/10 rounded-full" />
+                </div>
+                <div className="flex flex-col gap-6">
+                  <div className="h-8 w-full bg-white/10 rounded-xl" />
+                  <div className="h-4 w-2/3 bg-white/5 rounded-lg" />
+                  <div className="h-4 w-1/2 bg-white/5 rounded-lg" />
+                  <div className="mt-auto h-14 w-full bg-brand rounded-2xl flex items-center justify-center">
+                    <div className="h-2 w-24 bg-surface/40 rounded-full" />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="aspect-square bg-white/5 rounded-2xl border border-white/10 hover:border-brand/30 transition-colors" />
+                ))}
               </div>
             </div>
           </div>
@@ -1218,44 +1358,47 @@ const Portfolio = () => {
           <div className="flex-1 p-8 flex flex-col gap-8 bg-surface">
             <div className="flex justify-between items-center">
               <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 rounded-2xl bg-brand/20 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-brand" />
+                <div className="w-12 h-12 rounded-2xl bg-brand/20 flex items-center justify-center border border-brand/30">
+                  <BarChart3 className="w-6 h-6 text-brand" />
                 </div>
                 <div className="space-y-1">
-                  <div className="h-3 w-24 bg-white/10 rounded-full" />
-                  <div className="h-2 w-16 bg-white/5 rounded-full" />
+                  <span className="text-[10px] font-mono text-brand uppercase tracking-widest">{siteName}</span>
+                  <div className="h-4 w-32 bg-white/10 rounded-full" />
                 </div>
               </div>
               <div className="flex gap-2">
-                <div className="px-3 py-1 bg-white/5 rounded-full border border-white/10 text-[8px] font-mono text-muted uppercase tracking-widest">Live</div>
+                <div className="px-4 py-1.5 bg-brand/10 rounded-full border border-brand/20 text-[9px] font-mono text-brand uppercase tracking-widest animate-pulse">Live Data</div>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-12 bg-white/[0.02] rounded-xl border border-white/5" />
+                <div key={i} className="h-16 bg-white/[0.02] rounded-2xl border border-white/5 p-4 flex flex-col justify-between">
+                  <div className="h-1 w-8 bg-white/10 rounded-full" />
+                  <div className="h-3 w-16 bg-white/20 rounded-full" />
+                </div>
               ))}
             </div>
-            <div className="flex-1 flex items-end gap-2 px-4 pb-4 border-b border-white/5 relative">
-              <div className="absolute inset-0 flex flex-col justify-between py-4 pointer-events-none opacity-10">
-                {[1, 2, 3, 4].map(i => <div key={i} className="h-[1px] w-full bg-white" />)}
+            <div className="flex-1 flex items-end gap-3 px-6 pb-6 border-b border-white/5 relative">
+              <div className="absolute inset-0 flex flex-col justify-between py-6 pointer-events-none opacity-5">
+                {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-[1px] w-full bg-white" />)}
               </div>
-              {[35, 65, 45, 85, 55, 95, 75, 45, 65, 90, 60, 80].map((h, i) => (
+              {[40, 70, 50, 90, 60, 100, 80, 50, 70, 95, 65, 85].map((h, i) => (
                 <motion.div 
                   key={i}
                   initial={{ height: 0 }}
                   whileInView={{ height: `${h}%` }}
                   transition={{ delay: i * 0.05, type: "spring", stiffness: 100 }}
-                  className="flex-1 bg-gradient-to-t from-brand/40 to-brand rounded-t-lg relative group/bar" 
+                  className="flex-1 bg-gradient-to-t from-brand/40 to-brand rounded-t-xl relative group/bar hover:scale-x-110 transition-transform" 
                 >
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-brand text-surface text-[8px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-brand text-surface text-[9px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-xl">
                     {h}%
                   </div>
                 </motion.div>
               ))}
             </div>
-            <div className="flex justify-between px-2">
+            <div className="flex justify-between px-4">
               {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'].map(m => (
-                <span key={m} className="text-[8px] font-mono text-muted uppercase tracking-widest">{m}</span>
+                <span key={m} className="text-[9px] font-mono text-muted uppercase tracking-widest">{m}</span>
               ))}
             </div>
           </div>
@@ -1334,72 +1477,77 @@ const Portfolio = () => {
   };
 
   return (
-    <section id="portfolio" className="py-32 px-6 max-w-7xl mx-auto relative overflow-hidden">
-      <FloatingElement speed={0.15} className="top-1/4 -left-20 w-[600px] h-[600px] bg-brand/5 blur-[150px] rounded-full" />
-      <FloatingElement speed={0.25} className="bottom-1/4 -right-20 w-[400px] h-[400px] bg-brand/10 blur-[100px] rounded-full" />
+    <section id="portfolio" className="portfolio-section relative bg-surface">
+      <div className="portfolio-sticky h-screen sticky top-0 flex items-center overflow-hidden">
+        <div className="portfolio-container flex gap-12 px-[10vw]">
+          <div className="portfolio-intro flex flex-col justify-center min-w-[40vw] pr-20">
+            <span className="text-brand text-[10px] uppercase tracking-[0.4em] font-bold mb-8 block gsap-reveal">Selected Works / 002</span>
+            <h2 className="text-7xl md:text-9xl font-display font-bold leading-[0.85] tracking-tighter mb-12 gsap-reveal">
+              Projetos que <br />
+              <span className="text-brand italic">definem o futuro.</span>
+            </h2>
+            <p className="text-muted text-xl font-light leading-relaxed max-w-md gsap-reveal">
+              Uma seleção curada de soluções digitais que combinam estética brutalista com performance extrema.
+            </p>
+          </div>
 
-      <div className="text-center mb-20 relative z-10">
-        <ScrollReveal>
-          <span className="text-brand text-[10px] uppercase tracking-[0.3em] font-bold mb-4 block">Portfólio de Soluções</span>
-          <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight mb-6">
-            Previa real do que <span className="text-brand italic">podemos construir</span> para o seu negócio.
-          </h2>
-        </ScrollReveal>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-white/10 relative z-10">
-        {projects.map((project, idx) => (
-          <ScrollReveal key={idx} delay={idx * 0.1} className={cn(project.colSpan)}>
+          {projects.map((project, idx) => (
             <div
-              className={cn(
-                "group relative border-white/10 overflow-hidden flex flex-col transition-all duration-500 h-full",
-                idx % 3 !== 2 ? "lg:border-r" : "",
-                idx < projects.length - 1 ? "border-b" : "md:border-b-0"
-              )}
+              key={idx}
+              className="project-card min-w-[80vw] md:min-w-[45vw] h-[70vh] relative group overflow-hidden border border-white/10 bg-surface/50 backdrop-blur-sm flex flex-col cursor-none"
             >
-              <div className={cn("aspect-video w-full bg-gradient-to-br relative overflow-hidden p-12", project.color)}>
+              <div className={cn("flex-1 relative overflow-hidden p-12", project.color)}>
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
                 
-                {/* Technical Label */}
-                <div className="absolute top-4 left-4 flex gap-4 opacity-40">
-                  <span className="text-[8px] font-mono text-white uppercase tracking-widest">Project / 00{idx + 1}</span>
-                  <span className="text-[8px] font-mono text-white uppercase tracking-widest">{project.badge}</span>
+                <div className="absolute top-6 left-6 flex gap-4 opacity-40 z-20">
+                  <span className="text-[10px] font-mono text-white uppercase tracking-widest">00{idx + 1}</span>
+                  <span className="text-[10px] font-mono text-white uppercase tracking-widest">{project.badge}</span>
                 </div>
 
-                {/* Browser Frame Simulation */}
                 <motion.div 
                   whileHover={{ y: -10, scale: 1.02 }}
-                  className="w-full h-full bg-surface/40 backdrop-blur-md rounded-none border border-white/10 shadow-2xl overflow-hidden flex flex-col"
+                  className="w-full h-full bg-surface/40 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden flex flex-col relative z-10"
                 >
                   <div className="h-6 bg-white/5 border-b border-white/10 flex items-center px-3 gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
                     <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
                     <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
                   </div>
-                  {renderBrowserContent(project.type)}
+                  <div className="flex-1 overflow-hidden">
+                    {renderBrowserContent(project)}
+                  </div>
                 </motion.div>
               </div>
-              <div className="p-12 flex-1 flex flex-col justify-between bg-surface group-hover:bg-brand/[0.02] transition-colors duration-500">
-                <div>
-                  <div className="flex justify-between items-start mb-6">
-                    <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">{project.category}</span>
-                  </div>
-                  <h3 className="text-3xl md:text-4xl font-display tracking-tight mb-6 group-hover:translate-x-2 transition-transform duration-500">{project.title}</h3>
-                  <p className="text-muted text-lg font-light leading-relaxed mb-10 max-w-xl">{project.description}</p>
+
+              <div className="p-12 bg-surface/80 backdrop-blur-md border-t border-white/10">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-brand font-mono text-[10px] uppercase tracking-[0.4em] font-bold">{project.category}</span>
                 </div>
+                <h3 className="text-4xl font-display tracking-tight mb-6 group-hover:text-brand transition-colors duration-500">{project.title}</h3>
                 <div className="flex items-center justify-between">
                   <MagneticButton 
                     onClick={() => setSelectedProject(project)}
                     className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.3em] text-white hover:text-brand transition-colors"
                   >
-                    Explorar Case <ArrowUpRight className="w-4 h-4" />
+                    Ver Detalhes <ArrowUpRight className="w-4 h-4" />
                   </MagneticButton>
-                  <div className="w-10 h-[1px] bg-white/10" />
                 </div>
               </div>
             </div>
-          </ScrollReveal>
-        ))}
+          ))}
+
+          <div className="portfolio-outro flex flex-col justify-center min-w-[40vw] pl-20">
+            <h2 className="text-6xl md:text-8xl font-display font-bold leading-[0.85] tracking-tighter mb-12">
+              Seu projeto <br />
+              <span className="text-brand italic">é o próximo?</span>
+            </h2>
+            <MagneticButton 
+              className="px-12 py-6 bg-brand text-surface rounded-none font-bold text-sm uppercase tracking-widest hover:bg-white transition-colors duration-500 w-fit"
+            >
+              Vamos Conversar
+            </MagneticButton>
+          </div>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -1425,10 +1573,17 @@ const Portfolio = () => {
                 <Zap className="w-6 h-6 text-brand rotate-45" />
               </button>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className={cn("aspect-video rounded-3xl bg-gradient-to-br relative overflow-hidden flex items-center justify-center", selectedProject.color)}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className={cn("aspect-video rounded-3xl bg-gradient-to-br relative overflow-hidden flex flex-col border border-white/10", selectedProject.color)}>
                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-                   <Terminal className="w-20 h-20 text-white/20" />
+                   <div className="h-6 bg-white/5 border-b border-white/10 flex items-center px-3 gap-1.5 relative z-10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                  </div>
+                   <div className="flex-1 relative z-10 overflow-hidden flex flex-col">
+                    {renderBrowserContent(selectedProject)}
+                   </div>
                 </div>
                 <div>
                   <span className="text-brand text-[10px] uppercase tracking-widest font-bold mb-4 block">{selectedProject.category}</span>
@@ -2184,6 +2339,8 @@ const LeadPopup = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 
 // --- Main App ---
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
@@ -2191,9 +2348,297 @@ export default function App() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorOuterRef = useRef<HTMLDivElement>(null);
+  const cursorLabelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const [cursorType, setCursorType] = useState<'default' | 'hover' | 'project'>('default');
+
+  // Lenis Smooth Scroll Initialization
+  useLayoutEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      lenis.destroy();
+      gsap.ticker.remove(raf);
+    };
+  }, []);
+
+  // GSAP Animations
+  useGSAP(() => {
+    // Reveal animations for sections
+    const sections = gsap.utils.toArray('section');
+    sections.forEach((section: any) => {
+      const reveals = section.querySelectorAll('.gsap-reveal');
+      if (reveals.length > 0) {
+        gsap.fromTo(reveals, 
+          { 
+            y: 100, 
+            opacity: 0,
+            skewY: 7
+          },
+          {
+            y: 0,
+            opacity: 1,
+            skewY: 0,
+            duration: 1.5,
+            ease: "expo.out",
+            stagger: 0.1,
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+    });
+
+    // Advanced Portfolio Parallax & Scale
+    gsap.utils.toArray('.project-card').forEach((card: any) => {
+      const inner = card.querySelector('.aspect-video');
+      const content = card.querySelector('.gsap-reveal');
+      
+      if (inner) {
+        gsap.fromTo(inner, 
+          { scale: 1.2, filter: 'grayscale(100%)' },
+          {
+            scale: 1,
+            filter: 'grayscale(0%)',
+            ease: "none",
+            scrollTrigger: {
+              trigger: card,
+              start: "top bottom",
+              end: "center center",
+              scrub: true
+            }
+          }
+        );
+      }
+
+      if (content) {
+        gsap.from(content, {
+          x: -50,
+          opacity: 0,
+          duration: 1,
+          scrollTrigger: {
+            trigger: card,
+            start: "top 80%",
+            toggleActions: "play none none reverse"
+          }
+        });
+      }
+    });
+
+    // Advanced Portfolio Horizontal Scroll
+    const portfolioSection = document.querySelector('.portfolio-section');
+    const portfolioContainer = document.querySelector('.portfolio-container');
+    
+    if (portfolioSection && portfolioContainer) {
+      const scrollWidth = portfolioContainer.scrollWidth - window.innerWidth;
+      
+      gsap.to(portfolioContainer, {
+        x: -scrollWidth,
+        ease: "none",
+        scrollTrigger: {
+          trigger: portfolioSection,
+          pin: true,
+          start: "top top",
+          end: () => `+=${scrollWidth}`,
+          scrub: 1,
+          invalidateOnRefresh: true,
+        }
+      });
+    }
+
+    // Background Color Transitions
+    const sectionsWithBg = [
+      { trigger: '#servicos', color: '#0A0A0A' },
+      { trigger: '.portfolio-section', color: '#0F0F0F' },
+      { trigger: '#processo', color: '#050505' },
+      { trigger: '#contato', color: '#0A0A0A' }
+    ];
+
+    sectionsWithBg.forEach(config => {
+      gsap.to(containerRef.current, {
+        backgroundColor: config.color,
+        scrollTrigger: {
+          trigger: config.trigger,
+          start: "top center",
+          end: "bottom center",
+          toggleActions: "play none none reverse",
+          scrub: true
+        }
+      });
+    });
+
+    // Advanced Text Reveal (Split Text Style)
+    gsap.utils.toArray('.gsap-split-text').forEach((text: any) => {
+      gsap.from(text, {
+        yPercent: 100,
+        opacity: 0,
+        rotateX: -30,
+        duration: 1.2,
+        ease: "power4.out",
+        scrollTrigger: {
+          trigger: text,
+          start: "top 90%",
+          toggleActions: "play none none reverse"
+        }
+      });
+    });
+
+    // 3D Tilt Effect for Project Cards
+    gsap.utils.toArray('.project-card').forEach((card: any) => {
+      card.addEventListener('mousemove', (e: MouseEvent) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (centerX - x) / 20;
+
+        gsap.to(card, {
+          rotateX: rotateX,
+          rotateY: rotateY,
+          scale: 1.02,
+          duration: 0.5,
+          ease: "power2.out",
+          transformPerspective: 1000
+        });
+      });
+
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, {
+          rotateX: 0,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+      });
+    });
+
+    // Glitch Effect for Hero Title
+    const glitchLines = document.querySelectorAll('.gsap-split-text');
+    glitchLines.forEach((line: any) => {
+      gsap.to(line, {
+        x: () => (Math.random() - 0.5) * 10,
+        y: () => (Math.random() - 0.5) * 5,
+        skewX: () => (Math.random() - 0.5) * 10,
+        duration: 0.1,
+        repeat: -1,
+        repeatRefresh: true,
+        ease: "none",
+        paused: true,
+        id: "glitch"
+      });
+
+      line.addEventListener('mouseenter', () => {
+        gsap.getById("glitch")?.play();
+      });
+      line.addEventListener('mouseleave', () => {
+        gsap.getById("glitch")?.pause();
+        gsap.to(line, { x: 0, y: 0, skewX: 0, duration: 0.2 });
+      });
+    });
+
+    // Video Parallax
+    gsap.to('.gsap-video-parallax', {
+      yPercent: 30,
+      ease: "none",
+      scrollTrigger: {
+        trigger: 'body',
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true
+      }
+    });
+
+    // Magnetic Buttons Logic with GSAP
+    const magneticButtons = document.querySelectorAll('.magnetic-btn');
+    magneticButtons.forEach((btn: any) => {
+      btn.addEventListener('mousemove', (e: MouseEvent) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        
+        gsap.to(btn, {
+          x: x * 0.3,
+          y: y * 0.3,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+        
+        const text = btn.querySelector('span, div, svg');
+        if (text) {
+          gsap.to(text, {
+            x: x * 0.15,
+            y: y * 0.15,
+            duration: 0.5,
+            ease: "power2.out"
+          });
+        }
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, {
+          x: 0,
+          y: 0,
+          duration: 0.8,
+          ease: "elastic.out(1, 0.3)"
+        });
+        const text = btn.querySelector('span, div, svg');
+        if (text) {
+          gsap.to(text, {
+            x: 0,
+            y: 0,
+            duration: 0.8,
+            ease: "elastic.out(1, 0.3)"
+          });
+        }
+      });
+    });
+
+    // Footer Reveal
+    gsap.from('.footer-content', {
+      yPercent: -50,
+      opacity: 0,
+      scrollTrigger: {
+        trigger: 'footer',
+        start: "top bottom",
+        end: "bottom bottom",
+        scrub: true
+      }
+    });
+
+  }, { scope: containerRef });
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 2500);
@@ -2205,11 +2650,34 @@ export default function App() {
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
+      
       if (cursorRef.current && cursorOuterRef.current) {
-        cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-        cursorOuterRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+        gsap.to(cursorRef.current, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.1,
+          ease: "power2.out"
+        });
+        gsap.to(cursorOuterRef.current, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.5,
+          ease: "power2.out"
+        });
         cursorRef.current.style.opacity = '1';
         cursorOuterRef.current.style.opacity = '1';
+      }
+
+      const target = e.target as HTMLElement;
+      const isHoverable = target.closest('button, a, .magnetic-btn');
+      const isProject = target.closest('.project-card');
+
+      if (isProject) {
+        setCursorType('project');
+      } else if (isHoverable) {
+        setCursorType('hover');
+      } else {
+        setCursorType('default');
       }
     };
 
@@ -2234,17 +2702,27 @@ export default function App() {
   };
 
   return (
-    <div className="relative selection:bg-brand selection:text-white">
+    <div ref={containerRef} className="relative selection:bg-brand selection:text-white">
       {/* Custom Cursor */}
       <div 
         ref={cursorRef} 
-        className="fixed top-0 left-0 w-2 h-2 bg-brand rounded-full pointer-events-none z-[9999] mix-blend-difference transition-transform duration-100 ease-out opacity-0"
-        style={{ marginLeft: '-4px', marginTop: '-4px' }}
-      />
+        className={cn(
+          "fixed top-0 left-0 rounded-full pointer-events-none z-[9999] mix-blend-difference transition-all duration-300 ease-out opacity-0 flex items-center justify-center",
+          cursorType === 'default' ? "w-2 h-2 bg-brand" : 
+          cursorType === 'hover' ? "w-12 h-12 bg-white scale-110" : 
+          "w-24 h-24 bg-brand mix-blend-normal scale-100"
+        )}
+      >
+        {cursorType === 'project' && (
+          <span className="text-[10px] font-bold text-surface uppercase tracking-widest animate-pulse">Explorar</span>
+        )}
+      </div>
       <div 
         ref={cursorOuterRef} 
-        className="fixed top-0 left-0 w-10 h-10 border border-brand/30 rounded-full pointer-events-none z-[9998] transition-transform duration-300 ease-out opacity-0"
-        style={{ marginLeft: '-20px', marginTop: '-20px' }}
+        className={cn(
+          "fixed top-0 left-0 border border-brand/30 rounded-full pointer-events-none z-[9998] transition-all duration-500 ease-out opacity-0",
+          cursorType === 'default' ? "w-10 h-10" : "w-16 h-16 opacity-0"
+        )}
       />
 
       <motion.div 
@@ -2252,8 +2730,14 @@ export default function App() {
         style={{ scaleX: scrollYProgress }}
       />
       <div className="noise" />
-      <div ref={cursorRef} className="cursor-glow fixed w-[400px] h-[400px] rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300 z-0 bg-brand/5 blur-[100px]" />
-      <div className="fixed w-2 h-2 bg-brand rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 z-[100] hidden md:block" style={{ left: mouseX, top: mouseY }} />
+      <motion.div 
+        className="cursor-glow fixed w-[400px] h-[400px] rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 bg-brand/5 blur-[120px]" 
+        style={{ left: mouseX, top: mouseY }} 
+      />
+      <motion.div 
+        className="fixed w-2 h-2 bg-brand rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2 z-[100] hidden md:block" 
+        style={{ left: mouseX, top: mouseY }} 
+      />
       
       <AnimatePresence>
         {loading && (
